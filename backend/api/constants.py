@@ -10,6 +10,7 @@ INGREDIENT_NAME_MAX_LENGTH = 128
 MEASUREMENT_UNIT_MAX_LENGTH = 64
 RECIPE_NAME_MAX_LENGTH = 256
 COOKING_TIME_MIN_VALUE = 1
+INGREDIENTS_MIN_AMOUNT = 1
 
 LOGIN_ERROR_MESSAGE = (
     'Логин может содержать только английские '
@@ -22,4 +23,7 @@ SLUG_ERROR_MESSAGE = (
 COOKING_TIME_ERROR_MESSAGE = (
     'Время приготовления не может быть'
     'менее 1 минуты.'
+)
+INGREDIENTS_AMOUNT_ERROR_MESSAGE = (
+    'Рецепт должен содержать хотя бы 1 ингредиент.'
 )
