@@ -1,4 +1,4 @@
-from csv import DictReader
+import csv
 
 from django.core.management import BaseCommand
 
@@ -21,12 +21,14 @@ class Command(BaseCommand):
         Ingredient.objects.all().delete()
         items_list = []
         with open(file_path, mode='r', encoding='utf-8') as f:
-            reader = DictReader(f)
+            reader = csv.reader(f)
             for row in reader:
+                name_index = 0
+                unit_index = 1
                 model_item = Ingredient(
-                    name=row[0],
-                    measurement_unit=row[1],
+                    name=row[name_index],
+                    measurement_unit=row[unit_index],
                 )
                 items_list.append(model_item)
             Ingredient.objects.bulk_create(items_list)
-            self.stdout.write('======   Успешный мпорт csv файла   ======')
+            self.stdout.write('======   Успешный импорт в модель Ingredient   ======')
