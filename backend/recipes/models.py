@@ -104,7 +104,7 @@ class Recipe(models.Model):
     class Meta:
         verbose_name = 'рецепт'
         verbose_name_plural = 'Рецепты'
-        ordering = ['-id']
+        ordering = ['name']
 
     def __str__(self):
         return self.name
@@ -127,7 +127,7 @@ class RecipeTag(models.Model):
     class Meta:
         verbose_name = 'тэг рецепта'
         verbose_name_plural = 'Тэги рецепта'
-        ordering = ['id']
+        ordering = ['recipe']
 
     def __str__(self):
         return f'Тэг рецепта {self.recipe} - {self.tag}.'
@@ -158,7 +158,7 @@ class RecipeIngredient(models.Model):
     class Meta:
         verbose_name = 'Ингридиент рецепта'
         verbose_name_plural = 'Ингридиенты рецепта'
-        ordering = ['id']
+        ordering = ['recipe']
         constraints = [
             models.UniqueConstraint(
                 fields=['recipe', 'ingredient'],
@@ -168,3 +168,61 @@ class RecipeIngredient(models.Model):
 
     def __str__(self):
         return f'{self.ingredient} в составе {self.recipe}'
+
+
+class Favorite(models.Model):
+    recipe = models.ForeignKey(
+        Recipe,
+        verbose_name='Избранный рецепт',
+        related_name='favorite',
+        on_delete=models.CASCADE
+    )
+    user = models.ForeignKey(
+        CustomUser,
+        verbose_name='Избранное пользователя',
+        related_name='favorite',
+        on_delete=models.CASCADE
+    )
+
+    class Meta:
+        verbose_name = 'избранный'
+        verbose_name_plural = 'Избранное'
+        ordering = ['user']
+        constraints = [
+            models.UniqueConstraint(
+                fields=['recipe', 'user'],
+                name='unique_favorite'
+            )
+        ]
+
+    def __str__(self):
+        return f'{self.recipe} в избранном у {self.recipe}'
+
+
+class ShoppingCart(models.Model):
+    recipe = models.ForeignKey(
+        Recipe,
+        verbose_name='Рецепт',
+        related_name='shopping_cart',
+        on_delete=models.CASCADE
+    )
+    user = models.ForeignKey(
+        CustomUser,
+        verbose_name='Корзина пользователя',
+        related_name='shopping_cart',
+        on_delete=models.CASCADE
+    )
+
+    class Meta:
+        verbose_name = 'список покупок'
+        verbose_name_plural = 'Списки покупок'
+        ordering = ['user']
+        constraints = [
+            models.UniqueConstraint(
+                fields=['recipe', 'user'],
+                name='unique_shopping_cart_recipe'
+            )
+        ]
+
+    def __str__(self):
+        return f'{self.recipe} в списке покупок у {self.recipe}'
