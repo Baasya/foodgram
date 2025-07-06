@@ -60,12 +60,12 @@ class Recipe(models.Model):
 
     name = models.CharField(
         verbose_name='Название рецепта',
-        blanke=False,
+        blank=False,
         max_length=con.RECIPE_NAME_MAX_LENGTH
     )
     text = models.TextField(
         verbose_name='Описание',
-        blanke=False,
+        blank=False,
     )
     cooking_time = models.PositiveSmallIntegerField(
         verbose_name='Время готовки в минутах',
@@ -77,7 +77,7 @@ class Recipe(models.Model):
     )
     image = models.ImageField(
         verbose_name='Фото блюда',
-        blanke=False,
+        blank=False,
         upload_to='media/recipies/'
     )
     author = models.ForeignKey(
@@ -90,14 +90,14 @@ class Recipe(models.Model):
         Tag,
         verbose_name='Тэги рецепта',
         related_name='recipes',
-        blanke=False,
+        blank=False,
         through='RecipeTag'
     )
     ingredients = models.ManyToManyField(
         Ingredient,
         verbose_name='Ингредиенты рецепта',
         related_name='recipes',
-        blanke=False,
+        blank=False,
         through='RecipeIngredient'
     )
 

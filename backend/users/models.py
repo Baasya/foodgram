@@ -4,7 +4,7 @@ from django.db import models
 
 from api.constants import (EMAIL_MAX_LENGHT, FIRST_NAME_MAX_LENGHT,
                            LAST_NAME_MAX_LENGHT, LOGIN_ERROR_MESSAGE,
-                           USERNAME_MAX_LENGHT)
+                           PASSWORD_MAX_LENGHT, USERNAME_MAX_LENGHT)
 from api.validators import validate_username
 
 
@@ -47,6 +47,7 @@ class CustomUser(AbstractUser):
     )
     password = models.CharField(
         verbose_name='Пароль',
+        max_length=PASSWORD_MAX_LENGHT,
         blank=False,
         null=False
     )

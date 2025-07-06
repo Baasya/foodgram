@@ -1,6 +1,8 @@
 from csv import DictReader
 
 from django.core.management import BaseCommand
+
+from foodgram import settings
 from recipes.models import Ingredient
 
 
@@ -15,7 +17,7 @@ class Command(BaseCommand):
         parser.add_argument('file_path', nargs=1, type=str)
 
     def handle(self, *args, **options):
-        file_path = options['file_path'][0]
+        file_path = f'{settings.BASE_DIR}/data/ingredients.csv'
         Ingredient.objects.all().delete()
         items_list = []
         with open(file_path, mode='r', encoding='utf-8') as f:
