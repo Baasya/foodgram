@@ -60,7 +60,40 @@ class CustomUser(AbstractUser):
     class Meta:
         verbose_name = 'пользователь'
         verbose_name_plural = 'Пользователи'
-        ordering = ('username',)
+        ordering = ['username']
 
     def __str__(self):
         return self.username
+
+
+class Subscription(models.Model):
+    user = models.ForeignKey(
+        CustomUser,
+        on_delete=models.CASCADE,
+        related_name='follower',
+        verbose_name='Подписчик',
+    )
+    author = models.ForeignKey(
+        CustomUser,
+        on_delete=models.CASCADE,
+        related_name='following',
+        verbose_name='Автор',
+    )
+
+    class Meta:
+        verbose_name = 'подписка'
+        verbose_name_plural = 'Подписки'
+        ordering = ['id']
+        constraints = [
+            models.UniqueConstraint(
+                fields=['user', 'author'],
+                name='unique_subscription'
+            ),
+            models.CheckConstraint(
+                check=~models.Q(author=models.F('user')),
+                name='prevent_self_subscription',
+            )
+        ]
+
+    def __str__(self):
+        return f'{self.user} подписан на {self.author}.'
