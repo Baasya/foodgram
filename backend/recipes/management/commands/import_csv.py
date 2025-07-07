@@ -11,6 +11,7 @@ class Command(BaseCommand):
 
     help = (
         'Команда для импорта данных в модель Ingredients. '
+        'Синтаксис команды: python manage.py import_csv /путь к файлу/. '
     )
 
     def add_arguments(self, parser):
@@ -23,12 +24,10 @@ class Command(BaseCommand):
         with open(file_path, mode='r', encoding='utf-8') as f:
             reader = csv.reader(f)
             for row in reader:
-                name_index = 0
-                unit_index = 1
                 model_item = Ingredient(
-                    name=row[name_index],
-                    measurement_unit=row[unit_index],
+                    name=row[0],
+                    measurement_unit=row[1],
                 )
                 items_list.append(model_item)
             Ingredient.objects.bulk_create(items_list)
-            self.stdout.write('======   Успешный импорт в модель Ingredient   ======')
+            self.stdout.write('==== Успешный импорт в модель Ingredient ====')
