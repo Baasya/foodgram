@@ -19,7 +19,7 @@ class CustomUser(AbstractUser):
         null=False,
         validators=[
             RegexValidator(
-                regex=r'^[\w.@+-]+\z',
+                regex=r'^[\w.@+-]+$',
                 message=LOGIN_ERROR_MESSAGE
             ),
             validate_username,
