@@ -28,7 +28,7 @@ class IngredientAdmin(admin.ModelAdmin):
 class RecipeAdmin(admin.ModelAdmin):
     """Настройки панели администрирования рецептов."""
     fields = ('name', 'author', 'cooking_time', 'image', 'text')
-    list_display = ('id', 'name', 'author')
+    list_display = ('id', 'name', 'author', 'count_favorite')
     list_display_links = ('id', 'name')
     inlines = [RecipeTagInline, RecipeIngredientInline]
     list_filter = ('tags', )
@@ -38,7 +38,6 @@ class RecipeAdmin(admin.ModelAdmin):
     @admin.display(description='В избранном у')
     def count_favorite(self, obj):
         return obj.favorite.count()
-
 
 
 @admin.register(Tag)
