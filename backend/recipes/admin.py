@@ -35,8 +35,9 @@ class RecipeAdmin(admin.ModelAdmin):
     search_fields = ('name', 'author')
     empty_value_display = '-пусто-'
 
-    # def count_favorite(self, recipe):
-    #     return (Recipe.favorite.count())
+    @admin.display(description='В избранном у')
+    def count_favorite(self, obj):
+        return obj.favorite.count()
 
 
 
