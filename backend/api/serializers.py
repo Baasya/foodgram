@@ -4,6 +4,8 @@ from recipes.models import (Favorite, Ingredient, Recipe, RecipeIngredient,
                             RecipeTag, ShoppingCart, Tag)
 from users.models import CustomUser, Subscription
 
+from .fields import Base64ImageField
+
 
 class TagSerializer(serializers.ModelSerializer):
     class Meta:
