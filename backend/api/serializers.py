@@ -1,3 +1,4 @@
+from djoser.serializers import UserSerializer
 from rest_framework import serializers
 
 from recipes.models import (Favorite, Ingredient, Recipe, RecipeIngredient,
@@ -5,6 +6,13 @@ from recipes.models import (Favorite, Ingredient, Recipe, RecipeIngredient,
 from users.models import CustomUser, Subscription
 
 from .fields import Base64ImageField
+
+
+class CustomUserSerializer(UserSerializer):
+
+    class Meta:
+        model = CustomUser
+        fields = '__all__'
 
 
 class TagSerializer(serializers.ModelSerializer):
