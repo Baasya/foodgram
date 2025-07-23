@@ -65,6 +65,7 @@ class CustomUserCreateSerializer(UserCreateSerializer):
 
 
 class TagSerializer(serializers.ModelSerializer):
+    """Сериализатор для тэгов рецептов."""
 
     class Meta:
         model = Tag
@@ -72,6 +73,7 @@ class TagSerializer(serializers.ModelSerializer):
 
 
 class IngredientSerializer(serializers.ModelSerializer):
+    """Сериализатор для .ингредиентов"""
 
     class Meta:
         model = Ingredient

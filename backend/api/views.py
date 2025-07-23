@@ -1,11 +1,10 @@
-# from django.db.models import Avg
-# from django.shortcuts import get_object_or_404
+from django.db.models import Sum
+from django.shortcuts import get_object_or_404
 
 from django_filters.rest_framework import DjangoFilterBackend
 from djoser.views import UserViewSet
-from rest_framework import filters, serializers, status, viewsets
-from rest_framework.decorators import action, api_view
-from rest_framework import permissions
+from rest_framework import status, viewsets
+from rest_framework.decorators import action
 from rest_framework.permissions import (AllowAny, IsAuthenticated,
                                         IsAuthenticatedOrReadOnly)
 from rest_framework.response import Response
@@ -18,16 +17,55 @@ from users.models import CustomUser, Subscription
 from .filter import IngredientFilter
 from .pagination import CustomPagination
 from .permissions import IsAdminOrAuthorOrReadOnly
-from .serializers import (CustomUserSerializer, IngredientSerializer,
+from .serializers import (AvatarSerializer, CustomUserSerializer,
+                          CustomUserCreateSerializer,
+                          IngredientSerializer,
                           TagSerializer, RecipeReadSerializer,
                           RecipeWriteSerializer)
 
 
 class CustomUserViewSet(UserViewSet):
+    """Представление для пользователей."""
     queryset = CustomUser.objects.all()
     serializer_class = CustomUserSerializer
     permission_classes = (IsAuthenticatedOrReadOnly,)
     pagination_class = CustomPagination
+
+    @action(
+        methods=['get'],
+        detail=False,
+        permission_classes=(IsAuthenticated,)
+    )
+    def me(self, request, *args, **kwargs):
+        """Получение профиля пользователя."""
+        user = request.user
+        serializer = CustomUserSerializer(user)
+        return Response(serializer.data)
+
+    @action(
+        methods=['put'],
+        detail=False,
+        permission_classes=(IsAdminOrAuthorOrReadOnly,),
+        url_path='me/avatar',
+        url_name='me/avatar',
+    )
+    def avatar(self, request, *args, **kwargs):
+        """Добавдение фото профиля."""
+        serializer = AvatarSerializer(
+            instance=request.user,
+            data=request.data,
+        )
+        # выкинет ошибку 400 
+        serializer.is_valid(raise_exeption=True)
+        serializer.save()
+        return Response(serializer.data)
+
+    @avatar.mapping.delete
+    def delete_avatar(self, request, *args, **kwargs):
+        """Удаление фото профиля."""
+        user = self.request.user
+        user.avatar.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class TagViewSet(viewsets.ReadOnlyModelViewSet):
