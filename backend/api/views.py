@@ -15,7 +15,7 @@ from recipes.models import (Favorite, Ingredient, Recipe, RecipeIngredient,
 from users.models import CustomUser, Subscription
 
 # import constants as con
-# from .filter import 
+from .filter import IngredientFilter
 from .pagination import CustomPagination
 from .permissions import IsAdminOrAuthorOrReadOnly
 from .serializers import (CustomUserSerializer, IngredientSerializer,
@@ -31,6 +31,7 @@ class CustomUserViewSet(UserViewSet):
 
 
 class TagViewSet(viewsets.ReadOnlyModelViewSet):
+    """Представление для тэгов."""
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
     permission_classes = (IsAdminOrAuthorOrReadOnly,)
@@ -38,12 +39,13 @@ class TagViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
+    """Представление для ингредиентов."""
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
     permission_classes = (AllowAny,)
     pagination_class = None
     filter_backends = (DjangoFilterBackend,)
-    # filterset_class = IngredientFilter
+    filterset_class = IngredientFilter
     search_fields = ('^name',)
 
 
