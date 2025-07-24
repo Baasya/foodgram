@@ -37,14 +37,12 @@ class CustomUserSerializer(UserSerializer):
         )
 
         def get_is_subscribed(self, obj):
-            """Определяем значение поля is_subscribed."""
             request = self.context.get('request')
             if request is None or request.user.is_anonymous:
                 return False
             return Subscription.objects.filter(
                 user=request.user,
                 author=obj).exists()
-        # request.user.follower.filter(author=obj).exists()
 
 
 class CustomUserCreateSerializer(UserCreateSerializer):
@@ -122,6 +120,19 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
         )
 
 
+class RecipeSmallSerializer(serializers.ModelSerializer):
+    image = Base64ImageField()
+
+    class Meta:
+        model = Recipe
+        fields = (
+            'id',
+            'name',
+            'image',
+            'cooking_time'
+        )
+
+
 class SubsciberDetailSerializer (serializers.ModelSerializer):
     id = serializers.ReadOnlyField(source='author.id')
     email = serializers.ReadOnlyField(source='author.email')
@@ -146,6 +157,28 @@ class SubsciberDetailSerializer (serializers.ModelSerializer):
             'recipes',
             'recipes_amount',
         )
+
+    def get_is_subscribed(self, obj):
+        request = self.context.get('request')
+        user = request.user
+        return Subscription.objects.filter(
+            author=obj.author,
+            user=user).exists()
+
+    def get_recipes(self, obj):
+        request = self.context.get('request')
+        if 'recipes_limit' in request.GET:
+            limit = int(request.GET.get('recipes_limit'))
+        else:
+            limit = con.PAGE_SIZE
+        return RecipeSmallSerializer(
+            Recipe.objects.filter(author=obj.author)[:limit],
+            many=True,
+            context={'request': request}
+        ).data
+
+    def get_recipes_amount(self, obj):
+        return Recipe.objects.filter(author=obj.author).count()
 
 
 class SubscriptionSerializer (serializers.ModelSerializer):
