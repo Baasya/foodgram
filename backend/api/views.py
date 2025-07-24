@@ -1,13 +1,15 @@
 from django.db.models import Count, Sum
-from django.shortcuts import get_object_or_404
-
+from django.shortcuts import get_object_or_404, redirect
+from django.views.decorators.http import require_GET
 from django_filters.rest_framework import DjangoFilterBackend
 from djoser.views import UserViewSet
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
+from rest_framework.exceptions import NotFound
 from rest_framework.permissions import (AllowAny, IsAuthenticated,
                                         IsAuthenticatedOrReadOnly)
 from rest_framework.response import Response
+from rest_framework.reverse import reverse
 
 from recipes.models import (Favorite, Ingredient, Recipe, RecipeIngredient,
                             RecipeTag, ShoppingCart, Tag)
@@ -22,7 +24,7 @@ from .serializers import (AvatarSerializer, CustomUserSerializer,
                           TagSerializer, RecipeReadSerializer,
                           RecipeWriteSerializer,
                           SubscriberDetailSerializer,
-                          SubscriptionSerializer)                   
+                          SubscriptionSerializer)
 
     # HTTP_200_OK,
     # HTTP_201_CREATED,
@@ -150,12 +152,35 @@ class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
 
 class RecipeViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
-    # serializer_class через метод
     permission_classes = (IsAdminOrAuthorOrReadOnly,)
     pagination_class = CustomPagination
     filter_backends = (DjangoFilterBackend,)
 
     def get_serializer_class(self):
-        if self.action in ('list', 'retrieve'):
+        if self.action in ('list', 'retrieve', 'get-link'):
             return RecipeReadSerializer
         return RecipeWriteSerializer
+
+    @action(
+        methods=['get'],
+        detail=True,
+        permission_classes=(AllowAny,),
+        url_path='get-link',
+        url_name='get-link',         
+    )
+    def get_link(self, request, pk):
+        try:
+            recipe = get_object_or_404(Recipe, pk=pk)
+        except Recipe.DoesNotExist:
+            raise NotFound('Не удалось найти рецепт.')
+        else:
+            reverse_link = reverse('short_url', args=[recipe.pk])
+            return Response(
+                {'short-link': request.build_absolute_uri(reverse_link)},
+                status=status.HTTP_200_OK,
+            )
+
+
+@require_GET
+def short_url(request, pk):
+    return redirect(f'/recipes/{pk}/')
