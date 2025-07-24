@@ -13,7 +13,7 @@ from recipes.models import (Favorite, Ingredient, Recipe, RecipeIngredient,
                             RecipeTag, ShoppingCart, Tag)
 from users.models import CustomUser, Subscription
 
-import constants as con
+from . import constants as con
 from .filter import IngredientFilter
 from .pagination import CustomPagination
 from .permissions import IsAdminOrAuthorOrReadOnly

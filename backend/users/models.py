@@ -36,20 +36,14 @@ class CustomUser(AbstractUser):
     first_name = models.CharField(
         verbose_name='Имя',
         max_length=FIRST_NAME_MAX_LENGHT,
-        blank=False,
-        null=False
     )
     last_name = models.CharField(
         verbose_name='Фамилия',
         max_length=LAST_NAME_MAX_LENGHT,
-        blank=False,
-        null=False
     )
     password = models.CharField(
         verbose_name='Пароль',
         max_length=PASSWORD_MAX_LENGHT,
-        blank=False,
-        null=False
     )
     avatar = models.ImageField(
         verbose_name='Аватар пользователя',
@@ -84,7 +78,7 @@ class Subscription(models.Model):
     class Meta:
         verbose_name = 'подписка'
         verbose_name_plural = 'Подписки'
-        ordering = ['id']
+        ordering = ['-id']
         constraints = [
             models.UniqueConstraint(
                 fields=['user', 'author'],

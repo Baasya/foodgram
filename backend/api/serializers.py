@@ -5,7 +5,7 @@ from recipes.models import (Favorite, Ingredient, Recipe, RecipeIngredient,
                             RecipeTag, ShoppingCart, Tag)
 from users.models import CustomUser, Subscription
 
-import constants as con
+from . import constants as con
 from .fields import Base64ImageField
 
 
