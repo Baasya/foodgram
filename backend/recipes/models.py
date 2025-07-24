@@ -39,6 +39,7 @@ class Ingredient(models.Model):
         verbose_name='Название ингредиента',
         max_length=con.INGREDIENT_NAME_MAX_LENGTH,
         blank=False,
+        unique=True,
     )
     measurement_unit = models.CharField(
         verbose_name='Еденица измерения',
@@ -49,7 +50,13 @@ class Ingredient(models.Model):
     class Meta:
         verbose_name = 'ингредиент'
         verbose_name_plural = 'Ингредиенты'
-        ordering = ['name']
+        ordering = ['-id']
+        constraints = (
+            models.UniqueConstraint(
+                fields=('name', 'measurement_unit'),
+                name='unique_ingredient',
+            ),
+        )
 
     def __str__(self):
         return f'{self.name}({self.measurement_unit})'
@@ -104,13 +111,15 @@ class Recipe(models.Model):
     class Meta:
         verbose_name = 'рецепт'
         verbose_name_plural = 'Рецепты'
-        ordering = ['name']
+        ordering = ['-id']
 
     def __str__(self):
         return self.name
 
 
 class RecipeTag(models.Model):
+    """Промежуточная модель для связи рецептов и тэгов."""
+
     recipe = models.ForeignKey(
         Recipe,
         verbose_name='Рецепт',
@@ -127,13 +136,15 @@ class RecipeTag(models.Model):
     class Meta:
         verbose_name = 'тэг рецепта'
         verbose_name_plural = 'Тэги рецепта'
-        ordering = ['recipe']
+        ordering = ['-id']
 
     def __str__(self):
         return f'Тэг рецепта {self.recipe} - {self.tag}.'
 
 
 class RecipeIngredient(models.Model):
+    """Промежуточная модель для связи рецептов и ингредиентов."""
+
     recipe = models.ForeignKey(
         Recipe,
         verbose_name='Рецепт',
@@ -156,13 +167,13 @@ class RecipeIngredient(models.Model):
     )
 
     class Meta:
-        verbose_name = 'Ингридиент рецепта'
-        verbose_name_plural = 'Ингридиенты рецепта'
-        ordering = ['recipe']
+        verbose_name = 'Количество ингредиента'
+        verbose_name_plural = 'Количество ингредиентов'
+        ordering = ['-id']
         constraints = [
             models.UniqueConstraint(
                 fields=['recipe', 'ingredient'],
-                name='unique_ingredient'
+                name='unique_recipe_ingredient'
             )
         ]
 
@@ -171,6 +182,8 @@ class RecipeIngredient(models.Model):
 
 
 class Favorite(models.Model):
+    """Модель для избранных рецептов."""
+
     recipe = models.ForeignKey(
         Recipe,
         verbose_name='Избранный рецепт',
@@ -187,7 +200,7 @@ class Favorite(models.Model):
     class Meta:
         verbose_name = 'избранный'
         verbose_name_plural = 'Избранное'
-        ordering = ['user']
+        ordering = ['-id']
         constraints = [
             models.UniqueConstraint(
                 fields=['recipe', 'user'],
@@ -200,6 +213,8 @@ class Favorite(models.Model):
 
 
 class ShoppingCart(models.Model):
+    """Модель для корзины покупок."""
+
     recipe = models.ForeignKey(
         Recipe,
         verbose_name='Рецепт',
@@ -208,7 +223,7 @@ class ShoppingCart(models.Model):
     )
     user = models.ForeignKey(
         CustomUser,
-        verbose_name='Корзина пользователя',
+        verbose_name='Пользователь',
         related_name='shopping_cart',
         on_delete=models.CASCADE
     )
