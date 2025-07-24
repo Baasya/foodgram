@@ -1,4 +1,4 @@
-from django.db.models import Sum
+from django.db.models import Count, Sum
 from django.shortcuts import get_object_or_404
 
 from django_filters.rest_framework import DjangoFilterBackend
@@ -13,15 +13,22 @@ from recipes.models import (Favorite, Ingredient, Recipe, RecipeIngredient,
                             RecipeTag, ShoppingCart, Tag)
 from users.models import CustomUser, Subscription
 
-# import constants as con
+import constants as con
 from .filter import IngredientFilter
 from .pagination import CustomPagination
 from .permissions import IsAdminOrAuthorOrReadOnly
 from .serializers import (AvatarSerializer, CustomUserSerializer,
-                          CustomUserCreateSerializer,
                           IngredientSerializer,
                           TagSerializer, RecipeReadSerializer,
-                          RecipeWriteSerializer)
+                          RecipeWriteSerializer,
+                          SubscriberDetailSerializer,
+                          SubscriptionSerializer)                   
+
+    # HTTP_200_OK,
+    # HTTP_201_CREATED,
+    # HTTP_204_NO_CONTENT,
+    # HTTP_400_BAD_REQUEST,
+    # HTTP_404_NOT_FOUND,
 
 
 class CustomUserViewSet(UserViewSet):
@@ -37,7 +44,6 @@ class CustomUserViewSet(UserViewSet):
         permission_classes=(IsAuthenticated,)
     )
     def me(self, request, *args, **kwargs):
-        """Получение профиля пользователя."""
         user = request.user
         serializer = CustomUserSerializer(user)
         return Response(serializer.data)
@@ -50,7 +56,6 @@ class CustomUserViewSet(UserViewSet):
         url_name='me/avatar',
     )
     def avatar(self, request, *args, **kwargs):
-        """Добавдение фото профиля."""
         serializer = AvatarSerializer(
             instance=request.user,
             data=request.data,
@@ -62,10 +67,66 @@ class CustomUserViewSet(UserViewSet):
 
     @avatar.mapping.delete
     def delete_avatar(self, request, *args, **kwargs):
-        """Удаление фото профиля."""
         user = self.request.user
         user.avatar.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+    @action(
+        methods=['get'],
+        detail=False,
+        permission_classes=(IsAuthenticated,),
+        url_path='subscriptions',
+        url_name='subscriptions',
+    )
+    def subscriptions(self, request):
+        user = request.user
+        queryset = user.follower.all()
+        pages = self.paginate_queryset(queryset)
+        serializer = SubscriberDetailSerializer(
+            pages,
+            many=True,
+            context={'request': request}
+        )
+        return self.get_paginate_response(serializer.data)
+
+    @action(
+        methods=['post', 'delete'],
+        detail=True,
+        permission_classes=(IsAuthenticated,),
+    )
+    def subscribe(self, request, id):
+        user = request.user
+        author = get_object_or_404(CustomUser, id=id)
+
+        if self.request.method == 'POST':
+            if user == author:
+                return Response(
+                    {'errors': con.SUBSCRIBE_ER_MESSAGE},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+            if Subscription.objects.filter(user=user, author=author).exists():
+                return Response(
+                    {'errors': con.SUBSCRIBE_EXIST_ER_MESSAGE},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+            queryset = Subscription.objects.create(author=author, user=user)
+            serializer = SubscriptionSerializer(
+                queryset,
+                context={'request': request}
+            )
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        elif self.request.method == 'DELETE':
+            if not Subscription.objects.filter(user=user, author=author).exists():
+                return Response(
+                    {'errors': con.SUBSCRIBE_NOT_EXIST_ER_MESSAGE},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+            subscription = get_object_or_404(
+                Subscription, user=user, author=author
+            )
+            subscription.delete()
+            return Response(status=status.HTTP_205_NO_CONTENT)
 
 
 class TagViewSet(viewsets.ReadOnlyModelViewSet):

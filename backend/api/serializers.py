@@ -134,7 +134,7 @@ class RecipeSmallSerializer(serializers.ModelSerializer):
         )
 
 
-class SubsciberDetailSerializer (serializers.ModelSerializer):
+class SubscriberDetailSerializer (serializers.ModelSerializer):
     """Сериализатор для информации о подписках."""
     email = serializers.ReadOnlyField(source='author.email')
     id = serializers.ReadOnlyField(source='author.id')
@@ -191,7 +191,7 @@ class SubscriptionSerializer (serializers.ModelSerializer):
         fields = ('id', 'user', 'author')
 
     def to_representation(self, instance):
-        return SubsciberDetailSerializer(
+        return SubscriberDetailSerializer(
             instance,
             context=self.context
         ).data
