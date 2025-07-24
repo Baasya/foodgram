@@ -122,6 +122,32 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
         )
 
 
+class SubsciberDetailSerializer (serializers.ModelSerializer):
+    id = serializers.ReadOnlyField(source='author.id')
+    email = serializers.ReadOnlyField(source='author.email')
+    username = serializers.ReadOnlyField(source='author.username')
+    first_name = serializers.ReadOnlyField(source='author.first_name')
+    last_name = serializers.ReadOnlyField(source='author.last_name')
+    avatar = Base64ImageField(source='author.avatar')
+    is_subscribed = serializers.SerializerMethodField()
+    recipes = serializers.SerializerMethodField()
+    recipes_amount = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Subscription
+        fields = (
+            'id',
+            'email',
+            'username',
+            'first_name',
+            'last_name',
+            'avatar',
+            'is_subscribed',
+            'recipes',
+            'recipes_amount',
+        )
+
+
 class SubscriptionSerializer (serializers.ModelSerializer):
 
     class Meta:
