@@ -30,3 +30,12 @@ COOKING_TIME_ERROR_MESSAGE = (
 INGREDIENTS_AMOUNT_ERROR_MESSAGE = (
     'Рецепт должен содержать хотя бы 1 ингредиент.'
 )
+SUBSCRIBE_ER_MESSAGE = (
+    'Вы не можете подписаться на себя.'
+)
+SUBSCRIBE_EXIST_ER_MESSAGE = (
+    'Вы уже подписаны на этого пользователя.'
+)
+SUBSCRIBE_NOT_EXIST_ER_MESSAGE = (
+    'Вы не подписаны на этого пользователя.'
+)
