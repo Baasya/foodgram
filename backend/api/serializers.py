@@ -194,6 +194,29 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
             ingredients_id.append(ingredient_id)
         return value
 
+    def to_representation(self, instance):
+        serializer = RecipeReadSerializer(
+            instance,
+            context={'request': self.context.get('request')}
+        )
+        return serializer.data
+
+    def create_recipe_tag(self, tags, recipe):
+        recipe.tags.set(tags)
+
+    def create_recipe_ingredient(self, ingredients, recipe):
+        recipe_ingredients = []
+        for ingredient_data in ingredients:
+            ingredient = ingredient_data['id']
+            amount = ingredient_data['amount ']
+            one_ingredient = RecipeIngredient(
+                ingredient=ingredient,
+                recipe=recipe,
+                amount=amount
+            )
+            recipe_ingredients.append(one_ingredient)
+        RecipeIngredient.objects.bulk_create(recipe_ingredients)
+
 
 class RecipeSmallSerializer(serializers.ModelSerializer):
     """Упрощённый сериализатор для рецептов."""
