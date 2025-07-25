@@ -13,7 +13,7 @@ from rest_framework.response import Response
 from rest_framework.reverse import reverse
 
 from recipes.models import (Favorite, Ingredient, Recipe, RecipeIngredient,
-                            RecipeTag, ShoppingCart, Tag)
+                            ShoppingCart, Tag)
 from users.models import CustomUser, Subscription
 
 from . import constants as con
@@ -21,11 +21,9 @@ from .filter import IngredientFilter, RecipeFilter
 from .pagination import CustomPagination
 from .permissions import IsAdminOrAuthorOrReadOnly
 from .serializers import (AvatarSerializer, CustomUserSerializer,
-                          FavoriteRecipeSerializer,
-                          IngredientSerializer,
+                          FavoriteRecipeSerializer, IngredientSerializer,
                           TagSerializer, RecipeReadSerializer,
-                          RecipeWriteSerializer,
-                          SubscriberDetailSerializer,
+                          RecipeWriteSerializer, SubscriberDetailSerializer,
                           SubscriptionSerializer)
 
 
@@ -58,7 +56,6 @@ class CustomUserViewSet(UserViewSet):
             instance=request.user,
             data=request.data,
         )
-        # выкинет ошибку 400 
         serializer.is_valid(raise_exeption=True)
         serializer.save()
         return Response(serializer.data)
@@ -115,7 +112,9 @@ class CustomUserViewSet(UserViewSet):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         elif self.request.method == 'DELETE':
-            if not Subscription.objects.filter(user=user, author=author).exists():
+            if not Subscription.objects.filter(
+                user=user, author=author
+            ).exists():
                 return Response(
                     {'errors': con.SUBSCRIBE_NOT_EXIST_ER_MESSAGE},
                     status=status.HTTP_400_BAD_REQUEST,
@@ -163,7 +162,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         detail=True,
         permission_classes=(AllowAny,),
         url_path='get-link',
-        url_name='get-link',         
+        url_name='get-link',
     )
     def get_link(self, request, pk):
         try:
@@ -176,18 +175,13 @@ class RecipeViewSet(viewsets.ModelViewSet):
                 {'short-link': request.build_absolute_uri(reverse_link)},
                 status=status.HTTP_200_OK,
             )
-    # HTTP_200_OK,
-    # HTTP_201_CREATED,
-    # HTTP_204_NO_CONTENT,
-    # HTTP_400_BAD_REQUEST,
-    # HTTP_404_NOT_FOUND,
 
     @action(
         methods=['post', 'delete'],
         detail=True,
         permission_classes=(IsAuthenticated,),
         url_path='shopping_cart',
-        url_name='shopping_cart',      
+        url_name='shopping_cart',
     )
     def shopping_cart(self, request, pk):
         user = request.user
@@ -247,10 +241,39 @@ class RecipeViewSet(viewsets.ModelViewSet):
         response['Content-Disposition'] = 'attachment; filename="cart.txt"'
         return response
 
+    @action(
+        methods=['post', 'delete'],
+        detail=True,
+        permission_classes=(IsAuthenticated,),
+        url_path='favorite',
+        url_name='favorite',
+    )
+    def favorite(self, request, pk):
+        user = request.user
+        recipe = get_object_or_404(Recipe, pk=pk)
 
-
-
-
+        if request.method == 'POST':
+            if Favorite.objects.filter(recipe=recipe, user=user).exists():
+                return Response(
+                    {'detail': f'{recipe.name} уже в избанном.'},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+            Favorite.objects.create(recipe=recipe, user=user)
+            serializer = FavoriteRecipeSerializer(
+                recipe,
+                context={'request': request}
+            )
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        elif request.method == 'DELETE':
+            favorites = Favorite.objects.filter(recipe=recipe, user=user)
+            if favorites.exists():
+                favorites.delete()
+                return Response(status=status.HTTP_204_NO_CONTENT)
+            else:
+                return Response(
+                    {'detail': f'{recipe.name} отсутствует в избранном'},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
 
 
 @require_GET
