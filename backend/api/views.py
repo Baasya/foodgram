@@ -1,4 +1,5 @@
-from django.db.models import Count, Sum
+from django.db.models import Sum
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.views.decorators.http import require_GET
 from django_filters.rest_framework import DjangoFilterBackend
@@ -16,21 +17,16 @@ from recipes.models import (Favorite, Ingredient, Recipe, RecipeIngredient,
 from users.models import CustomUser, Subscription
 
 from . import constants as con
-from .filter import IngredientFilter
+from .filter import IngredientFilter, RecipeFilter
 from .pagination import CustomPagination
 from .permissions import IsAdminOrAuthorOrReadOnly
 from .serializers import (AvatarSerializer, CustomUserSerializer,
+                          FavoriteRecipeSerializer,
                           IngredientSerializer,
                           TagSerializer, RecipeReadSerializer,
                           RecipeWriteSerializer,
                           SubscriberDetailSerializer,
                           SubscriptionSerializer)
-
-    # HTTP_200_OK,
-    # HTTP_201_CREATED,
-    # HTTP_204_NO_CONTENT,
-    # HTTP_400_BAD_REQUEST,
-    # HTTP_404_NOT_FOUND,
 
 
 class CustomUserViewSet(UserViewSet):
@@ -155,6 +151,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAdminOrAuthorOrReadOnly,)
     pagination_class = CustomPagination
     filter_backends = (DjangoFilterBackend,)
+    filterset_class = RecipeFilter
 
     def get_serializer_class(self):
         if self.action in ('list', 'retrieve', 'get-link'):
@@ -179,6 +176,81 @@ class RecipeViewSet(viewsets.ModelViewSet):
                 {'short-link': request.build_absolute_uri(reverse_link)},
                 status=status.HTTP_200_OK,
             )
+    # HTTP_200_OK,
+    # HTTP_201_CREATED,
+    # HTTP_204_NO_CONTENT,
+    # HTTP_400_BAD_REQUEST,
+    # HTTP_404_NOT_FOUND,
+
+    @action(
+        methods=['post', 'delete'],
+        detail=True,
+        permission_classes=(IsAuthenticated,),
+        url_path='shopping_cart',
+        url_name='shopping_cart',      
+    )
+    def shopping_cart(self, request, pk):
+        user = request.user
+        recipe = get_object_or_404(Recipe, pk=pk)
+
+        if request.method == 'POST':
+            if ShoppingCart.objects.filter(recipe=recipe, user=user).exists():
+                return Response(
+                    {'detail': f'{recipe.name} уже добавлен в корзину.'},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+            ShoppingCart.objects.create(recipe=recipe, user=user)
+            serializer = FavoriteRecipeSerializer(
+                recipe,
+                context={'request': request}
+            )
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        elif request.method == 'DELETE':
+            cart_recipe = ShoppingCart.objects.filter(recipe__id=pk, user=user)
+            if cart_recipe.exists():
+                cart_recipe.delete()
+                return Response(status=status.HTTP_204_NO_CONTENT)
+            else:
+                return Response(
+                    {'detail': f'{recipe.name} отсутствует в корзине.'},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
+    @action(
+        methods=('get',),
+        detail=False,
+        permission_classes=(IsAuthenticated,),
+        url_path='download_shopping_cart',
+        url_name='download_shopping_cart',
+    )
+    def download_shopping_cart(self, request):
+        user = request.user
+        ingredients = (
+            RecipeIngredient.objects.filter(recipe__shopping_cart__user=user)
+            .values(
+                'ingredient__name',
+                'ingredient__measurement_unit'
+            )
+            .annotate(total_amount=Sum('amount'))
+        )
+
+        response_text = ''
+        for ingredient in ingredients:
+            ingredient_name = ingredient['ingredient__name']
+            measurement_unit = ingredient['ingredient__measurement_unit']
+            total_amount = ingredient['total_amount']
+            response_text += (
+                f'{ingredient_name} - ({measurement_unit})'
+                f'— {total_amount} \n')
+
+        response = HttpResponse(response_text, content_type='text/plain')
+        response['Content-Disposition'] = 'attachment; filename="cart.txt"'
+        return response
+
+
+
+
+
 
 
 @require_GET

@@ -325,3 +325,18 @@ class SubscriptionSerializer (serializers.ModelSerializer):
         if user.following.exists():
             raise serializers.ValidationError(con.SUBSCRIBE_EXIST_ER_MESSAGE)
         return value
+
+
+class FavoriteRecipeSerializer(serializers.ModelSerializer):
+    """Сериализатор для избранных рецептов."""
+
+    image = Base64ImageField()
+
+    class Meta:
+        model = Recipe
+        fields = (
+            'id',
+            'name',
+            'image',
+            'cooking_time'
+        )
