@@ -3,6 +3,7 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.views.decorators.http import require_GET
 from django_filters.rest_framework import DjangoFilterBackend
+from djoser.serializers import SetPasswordSerializer
 from djoser.views import UserViewSet
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
@@ -21,18 +22,40 @@ from .filter import IngredientFilter, RecipeFilter
 from .pagination import CustomPagination
 from .permissions import IsAdminOrAuthorOrReadOnly
 from .serializers import (AvatarSerializer, CustomUserSerializer,
-                          FavoriteRecipeSerializer, IngredientSerializer,
-                          RecipeReadSerializer, RecipeWriteSerializer,
-                          SubscriberDetailSerializer, SubscriptionSerializer,
-                          TagSerializer)
+                          CustomUserCreateSerializer, FavoriteRecipeSerializer,
+                          IngredientSerializer, RecipeReadSerializer,
+                          RecipeWriteSerializer, SubscriberDetailSerializer,
+                          SubscriptionSerializer, TagSerializer)
 
 
 class CustomUserViewSet(UserViewSet):
     """Представление для пользователей."""
     queryset = CustomUser.objects.all()
-    serializer_class = CustomUserSerializer
     permission_classes = (IsAuthenticatedOrReadOnly,)
     pagination_class = CustomPagination
+
+    def get_serializer_class(self):
+        if self.request.method == 'POST':
+            return CustomUserCreateSerializer
+        return CustomUserSerializer
+
+    @action(
+        methods=['post'],
+        detail=False,
+        permission_classes=(IsAuthenticated,)
+    )
+    def set_password(self, request, *args, **kwargs):
+        user = self.request.user
+        serializer = SetPasswordSerializer(
+            data=request.data,
+            context={'request': request}
+        )
+        if serializer.is_valid(raise_exception=True):
+            user.set_password(serializer.data['new_password'])
+            user.save()
+            return Response(
+                'Пароль изменён', status=status.HTTP_204_NO_CONTENT)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     @action(
         methods=['get'],
@@ -56,7 +79,7 @@ class CustomUserViewSet(UserViewSet):
             instance=request.user,
             data=request.data,
         )
-        serializer.is_valid(raise_exeption=True)
+        serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data)
 
