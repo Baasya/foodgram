@@ -28,10 +28,12 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    # debug
+    'debug_toolbar',
     'rest_framework',
     'rest_framework.authtoken',
-    'django_filters',
     'djoser',
+    'django_filters',
     'api.apps.ApiConfig',
     'users.apps.UsersConfig',
     'recipes.apps.RecipesConfig'
@@ -45,6 +47,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    # debug
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
 ]
 
 ROOT_URLCONF = 'foodgram.urls'
@@ -147,4 +151,15 @@ DJOSER = {
         # IsAuthenticatedOrReadOnly ?
         'user': ['rest_framework.permissions.IsAuthenticated'],
     },
+    'SERIALIZERS': {
+        'user': 'api.serializers.CustomUserSerializer',
+        'current_user': 'api.serializers.CustomUserSerializer',
+        'user_create': 'api.serializers.CustomUserCreateSerializer',
+        'set_password': 'djoser.serializers.SetPasswordSerializer',
+    }
 }
+
+# debug_tools
+INTERNAL_IPS = [
+    '127.0.0.1',
+]
