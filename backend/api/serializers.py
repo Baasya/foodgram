@@ -27,8 +27,8 @@ class CustomUserSerializer(UserSerializer):
     class Meta:
         model = CustomUser
         fields = (
-            'id',
             'email',
+            'id',
             'username',
             'first_name',
             'last_name',
@@ -36,13 +36,13 @@ class CustomUserSerializer(UserSerializer):
             'avatar',
         )
 
-        def get_is_subscribed(self, obj):
-            request = self.context.get('request')
-            if request is None or request.user.is_anonymous:
-                return False
-            return Subscription.objects.filter(
-                user=request.user,
-                author=obj).exists()
+    def get_is_subscribed(self, obj):
+        request = self.context.get('request')
+        if request is None or request.user.is_anonymous:
+            return False
+        return Subscription.objects.filter(
+            user=request.user,
+            author=obj).exists()
 
 
 class CustomUserCreateSerializer(UserCreateSerializer):
