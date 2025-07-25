@@ -21,7 +21,6 @@ class AvatarSerializer(serializers.ModelSerializer):
 
 class CustomUserSerializer(UserSerializer):
     """Сериализатор для информации о пользователях."""
-
     is_subscribed = serializers.SerializerMethodField()
     avatar = Base64ImageField(allow_null=True, required=False)
 
@@ -33,8 +32,8 @@ class CustomUserSerializer(UserSerializer):
             'username',
             'first_name',
             'last_name',
-            'avatar',
             'is_subscribed',
+            'avatar',
         )
 
         def get_is_subscribed(self, obj):
@@ -48,7 +47,6 @@ class CustomUserSerializer(UserSerializer):
 
 class CustomUserCreateSerializer(UserCreateSerializer):
     """Сериализатор для создания пользователя."""
-
     password = serializers.CharField(write_only=True)
 
     class Meta:
@@ -329,7 +327,6 @@ class SubscriptionSerializer (serializers.ModelSerializer):
 
 class FavoriteRecipeSerializer(serializers.ModelSerializer):
     """Сериализатор для избранных рецептов."""
-
     image = Base64ImageField()
 
     class Meta:
