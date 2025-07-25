@@ -217,6 +217,28 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
             recipe_ingredients.append(one_ingredient)
         RecipeIngredient.objects.bulk_create(recipe_ingredients)
 
+    def create(self, validated_data):
+        request = self.context['request']
+        user = request.user
+        ingredients = validated_data.pop('ingredients')
+        tags = validated_data.pop('tags')
+        recipe = Recipe.objects.create(
+            author=user,
+            **validated_data
+        )
+        self.create_recipe_tag(tags, recipe)
+        self.create_recipe_ingredient(ingredients, recipe)
+        return recipe
+
+    def update(self, instance, validated_data):
+        ingredients = validated_data.pop('ingredients')
+        tags = validated_data.pop('tags')
+        RecipeTag.objects.filter(recipe=instance).delete()
+        RecipeIngredient.objects.filter(recipe=instance).delete()
+        self.create_recipe_tag(tags, instance)
+        self.create_recipe_ingredient(ingredients, instance)
+        return super().update(instance, validated_data)
+
 
 class RecipeSmallSerializer(serializers.ModelSerializer):
     """Упрощённый сериализатор для рецептов."""
