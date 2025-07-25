@@ -1,5 +1,6 @@
 from djoser.serializers import UserCreateSerializer, UserSerializer
 from rest_framework import serializers
+from rest_framework.exceptions import ValidationError
 
 from recipes.models import (Favorite, Ingredient, Recipe, RecipeIngredient,
                             RecipeTag, ShoppingCart, Tag)
@@ -79,6 +80,12 @@ class IngredientSerializer(serializers.ModelSerializer):
 
 
 class RecipeIngredientSerializer(serializers.ModelSerializer):
+    """Сериализатор для ингредиентов в рецептах."""
+    id = serializers.ReadOnlyField(source='ingredient.id')
+    name = serializers.ReadOnlyField(source='ingredient.name')
+    measurement_unit = serializers.ReadOnlyField(
+        source='ingredient.measurement_unit'
+    )
 
     class Meta:
         model = RecipeIngredient
@@ -90,7 +97,25 @@ class RecipeIngredientSerializer(serializers.ModelSerializer):
         )
 
 
+class RecipeIngredientWriteSerializer(serializers.ModelSerializer):
+    """Сериализатор для записи ингредиентов в рецептах."""
+    id = serializers.IntegerField()
+    amount = serializers.IntegerField()
+
+    class Meta:
+        model = RecipeIngredient
+        fields = ('id', 'amount')
+
+
 class RecipeReadSerializer(serializers.ModelSerializer):
+    """Сериализатор для чтения рецептов."""
+    tags = TagSerializer(many=True)
+    author = CustomUserSerializer()
+    ingredients = RecipeIngredientSerializer(
+        source='ingredient_list', many=True
+    )
+    is_favorited = serializers.SerializerMethodField()
+    is_in_shopping_cart = serializers.SerializerMethodField()
 
     class Meta:
         model = Recipe
@@ -99,14 +124,41 @@ class RecipeReadSerializer(serializers.ModelSerializer):
             'tags',
             'author',
             'ingredients',
+            'is_favorited',
+            'is_in_shopping_cart',
             'name',
             'image',
             'text',
             'cooking_time',
         )
 
+    def check_model_object(self, obj, model):
+        request = self.context.get('request')
+        user = request.user
+        return bool(
+            request
+            and user.is_authenticated
+            and model.objects.filter(
+                recipe=obj,
+                user=user
+            ).exists()
+        )
+
+    def get_is_favorited(self, obj):
+        return self.check_model_object(obj, Favorite)
+
+    def get_is_in_shopping_cart(self, obj):
+        return self.check_model_object(obj, ShoppingCart)
+
 
 class RecipeWriteSerializer(serializers.ModelSerializer):
+    """Сериализатор для записи рецептов."""
+    ingredients = RecipeIngredientWriteSerializer(many=True)
+    tags = serializers.PrimaryKeyRelatedField(
+        many=True,
+        queryset=Tag.objects.all()
+    )
+    image = Base64ImageField(required=False, allow_null=True)
 
     class Meta:
         model = Recipe
@@ -118,6 +170,29 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
             'text',
             'cooking_time',
         )
+
+    def validate_image(self, value):
+        if not value:
+            raise ValidationError('Добавьте изображение к рецепту')
+        return value
+
+    def validate_tags(self, value):
+        if not value:
+            raise ValidationError('Укажите хотя бы один тэг')
+        if len(value) != len(set(value)):
+            raise ValidationError('Теги не должны повторяться')
+        return value
+
+    def validate_ingredients(self, value):
+        if not value:
+            raise ValidationError('Укажите хотя бы один ингредиент')
+        ingredients_id = []
+        for ingredient in value:
+            ingredient_id = ingredient['id']
+            if ingredient_id in ingredients_id:
+                raise ValidationError('Ингредиент уже добавлен')
+            ingredients_id.append(ingredient_id)
+        return value
 
 
 class RecipeSmallSerializer(serializers.ModelSerializer):
