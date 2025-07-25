@@ -22,9 +22,9 @@ from .pagination import CustomPagination
 from .permissions import IsAdminOrAuthorOrReadOnly
 from .serializers import (AvatarSerializer, CustomUserSerializer,
                           FavoriteRecipeSerializer, IngredientSerializer,
-                          TagSerializer, RecipeReadSerializer,
-                          RecipeWriteSerializer, SubscriberDetailSerializer,
-                          SubscriptionSerializer)
+                          RecipeReadSerializer, RecipeWriteSerializer,
+                          SubscriberDetailSerializer, SubscriptionSerializer,
+                          TagSerializer)
 
 
 class CustomUserViewSet(UserViewSet):
@@ -123,7 +123,7 @@ class CustomUserViewSet(UserViewSet):
                 Subscription, user=user, author=author
             )
             subscription.delete()
-            return Response(status=status.HTTP_205_NO_CONTENT)
+            return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class TagViewSet(viewsets.ReadOnlyModelViewSet):
