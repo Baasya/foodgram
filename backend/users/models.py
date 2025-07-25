@@ -11,6 +11,9 @@ from api.validators import validate_username
 class CustomUser(AbstractUser):
     """Модель пользователя, используемая в проекте."""
 
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ('username', 'first_name', 'last_name')
+
     username = models.CharField(
         verbose_name='Логин',
         max_length=USERNAME_MAX_LENGHT,
