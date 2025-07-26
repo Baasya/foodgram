@@ -98,7 +98,6 @@ class RecipeIngredientSerializer(serializers.ModelSerializer):
 class RecipeIngredientWriteSerializer(serializers.ModelSerializer):
     """Сериализатор для записи ингредиентов в рецептах."""
     id = serializers.IntegerField()
-    amount = serializers.IntegerField()
 
     class Meta:
         model = RecipeIngredient
@@ -156,7 +155,7 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
         many=True,
         queryset=Tag.objects.all()
     )
-    image = Base64ImageField()
+    image = Base64ImageField(allow_null=True)
 
     class Meta:
         model = Recipe
@@ -242,8 +241,10 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
             raise ValidationError({'tags': 'Добавьте тег'})
         RecipeTag.objects.filter(recipe=instance).delete()
         RecipeIngredient.objects.filter(recipe=instance).delete()
-        self.create_recipe_tag(tags, instance)
-        self.create_recipe_ingredient(ingredients, instance)
+        self.create_recipe_tag(validated_data.pop('tags'), instance)
+        self.create_recipe_ingredient(
+            validated_data.pop('ingredients'),
+            instance)
         return super().update(instance, validated_data)
 
 
