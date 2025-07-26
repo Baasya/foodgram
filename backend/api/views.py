@@ -18,14 +18,10 @@ from recipes.models import (Favorite, Ingredient, Recipe, RecipeIngredient,
 from users.models import CustomUser, Subscription
 
 from . import constants as con
+from . import serializers as s
 from .filter import IngredientFilter, RecipeFilter
 from .pagination import CustomPagination
 from .permissions import IsAdminOrAuthorOrReadOnly
-from .serializers import (AvatarSerializer, CustomUserSerializer,
-                          CustomUserCreateSerializer, FavoriteRecipeSerializer,
-                          IngredientSerializer, RecipeReadSerializer,
-                          RecipeWriteSerializer, SubscriberDetailSerializer,
-                          SubscriptionSerializer, TagSerializer)
 
 
 class CustomUserViewSet(UserViewSet):
@@ -36,8 +32,8 @@ class CustomUserViewSet(UserViewSet):
 
     def get_serializer_class(self):
         if self.request.method == 'POST':
-            return CustomUserCreateSerializer
-        return CustomUserSerializer
+            return s.CustomUserCreateSerializer
+        return s.CustomUserSerializer
 
     @action(
         methods=['post'],
@@ -64,7 +60,7 @@ class CustomUserViewSet(UserViewSet):
     )
     def me(self, request, *args, **kwargs):
         user = request.user
-        serializer = CustomUserSerializer(user)
+        serializer = s.CustomUserSerializer(user)
         return Response(serializer.data)
 
     @action(
@@ -75,7 +71,7 @@ class CustomUserViewSet(UserViewSet):
         url_name='me/avatar',
     )
     def avatar(self, request, *args, **kwargs):
-        serializer = AvatarSerializer(
+        serializer = s.AvatarSerializer(
             instance=request.user,
             data=request.data,
         )
@@ -100,7 +96,7 @@ class CustomUserViewSet(UserViewSet):
         user = request.user
         queryset = user.follower.all()
         pages = self.paginate_queryset(queryset)
-        serializer = SubscriberDetailSerializer(
+        serializer = s.SubscriberDetailSerializer(
             pages,
             many=True,
             context={'request': request}
@@ -128,7 +124,7 @@ class CustomUserViewSet(UserViewSet):
                     status=status.HTTP_400_BAD_REQUEST,
                 )
             queryset = Subscription.objects.create(author=author, user=user)
-            serializer = SubscriptionSerializer(
+            serializer = s.SubscriptionSerializer(
                 queryset,
                 context={'request': request}
             )
@@ -152,7 +148,7 @@ class CustomUserViewSet(UserViewSet):
 class TagViewSet(viewsets.ReadOnlyModelViewSet):
     """Представление для тэгов."""
     queryset = Tag.objects.all()
-    serializer_class = TagSerializer
+    serializer_class = s.TagSerializer
     permission_classes = (IsAdminOrAuthorOrReadOnly,)
     pagination_class = None
 
@@ -160,7 +156,7 @@ class TagViewSet(viewsets.ReadOnlyModelViewSet):
 class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
     """Представление для ингредиентов."""
     queryset = Ingredient.objects.all()
-    serializer_class = IngredientSerializer
+    serializer_class = s.IngredientSerializer
     permission_classes = (AllowAny,)
     pagination_class = None
     filter_backends = (DjangoFilterBackend,)
@@ -177,8 +173,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
     def get_serializer_class(self):
         if self.action in ('list', 'retrieve', 'get-link'):
-            return RecipeReadSerializer
-        return RecipeWriteSerializer
+            return s.RecipeReadSerializer
+        return s.RecipeWriteSerializer
 
     @action(
         methods=['get'],
@@ -217,7 +213,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
                     status=status.HTTP_400_BAD_REQUEST,
                 )
             ShoppingCart.objects.create(recipe=recipe, user=user)
-            serializer = FavoriteRecipeSerializer(
+            serializer = s.FavoriteRecipeSerializer(
                 recipe,
                 context={'request': request}
             )
@@ -282,7 +278,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
                     status=status.HTTP_400_BAD_REQUEST,
                 )
             Favorite.objects.create(recipe=recipe, user=user)
-            serializer = FavoriteRecipeSerializer(
+            serializer = s.FavoriteRecipeSerializer(
                 recipe,
                 context={'request': request}
             )

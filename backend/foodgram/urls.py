@@ -10,7 +10,7 @@ urlpatterns = [
     path('s/<int:pk>/', short_url, name='short_url'),
 ]
 
-#debug
+# debug
 if settings.DEBUG:
     import debug_toolbar
     urlpatterns += (path('__debug__/', include(debug_toolbar.urls)),)
