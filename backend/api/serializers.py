@@ -156,7 +156,7 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
         many=True,
         queryset=Tag.objects.all()
     )
-    image = Base64ImageField(required=False, allow_null=True)
+    image = Base64ImageField()
 
     class Meta:
         model = Recipe
@@ -190,6 +190,10 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
             if ingredient_id in ingredients_id:
                 raise ValidationError('Ингредиент уже добавлен')
             ingredients_id.append(ingredient_id)
+        real_ingredients_number = Ingredient.objects.filter(
+            id__in=ingredients_id).count()
+        if real_ingredients_number != len(ingredients_id):
+            raise ValidationError('Вы добавили несуществующие ингредиенты')
         return value
 
     def to_representation(self, instance):
@@ -205,8 +209,9 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
     def create_recipe_ingredient(self, ingredients, recipe):
         recipe_ingredients = []
         for ingredient_data in ingredients:
-            ingredient = ingredient_data['id']
-            amount = ingredient_data['amount ']
+            ingredient_id = ingredient_data['id']
+            amount = ingredient_data['amount']
+            ingredient = Ingredient.objects.get(pk=ingredient_id)
             one_ingredient = RecipeIngredient(
                 ingredient=ingredient,
                 recipe=recipe,
@@ -229,8 +234,12 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
         return recipe
 
     def update(self, instance, validated_data):
-        ingredients = validated_data.pop('ingredients')
-        tags = validated_data.pop('tags')
+        ingredients = validated_data.get('ingredients')
+        if ingredients is None:
+            raise ValidationError({'ingredients': 'Добавьте ингридиенты'})
+        tags = validated_data.get('tags')
+        if tags is None:
+            raise ValidationError({'tags': 'Добавьте тег'})
         RecipeTag.objects.filter(recipe=instance).delete()
         RecipeIngredient.objects.filter(recipe=instance).delete()
         self.create_recipe_tag(tags, instance)
