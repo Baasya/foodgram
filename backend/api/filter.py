@@ -7,7 +7,7 @@ class IngredientFilter(FilterSet):
     """Класс фильтрации по названию ингредиентов."""
     name = filters.CharFilter(
         field_name='name',
-        lookup_expr='istartwith'
+        lookup_expr='istartswith'
     )
 
     class Meta:
