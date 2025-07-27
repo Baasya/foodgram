@@ -16,7 +16,7 @@ services:
       - db
     volumes:
       - static:/backend_static
-      - media:/files/media
+      - media:/app/media/
       - redoc:/app/api/docs/
   frontend:
     env_file: .env
@@ -34,6 +34,6 @@ services:
     ports:
       - 9090:80
     volumes:
-      - static:/static
-      - media:/files/media
+      - static:/staticfiles/
+      - media:/app/media/
       - redoc:/usr/share/nginx/html/api/docs/
