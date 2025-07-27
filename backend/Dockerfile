@@ -12,4 +12,4 @@ RUN chmod +x /app/for_docker.sh
 
 ENTRYPOINT ["/app/for_docker.sh"]
 
-CMD ["gunicorn", "--bind", "0.0.0.0:9000", "foodgram.wsgi"]
+CMD ["gunicorn", "--bind", "0.0.0.0:9090", "foodgram.wsgi"]
