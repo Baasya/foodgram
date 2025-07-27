@@ -32,7 +32,7 @@ services:
       - frontend
       - db
     ports:
-      - "9090:80"
+      - 9090:80
     volumes:
       - static:/static
       - media:/files/media
