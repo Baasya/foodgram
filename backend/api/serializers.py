@@ -3,10 +3,11 @@ from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
 from recipes.models import (Favorite, Ingredient, Recipe, RecipeIngredient,
-                            RecipeTag, ShoppingCart, Tag)
+                            ShoppingCart, Tag)
 from users.models import Subscription, User
 
-from . import constants as con
+from .constants import (PAGE_SIZE, SUBSCRIBE_ER_MESSAGE,
+                        SUBSCRIBE_EXIST_ER_MESSAGE)
 from .fields import Base64ImageField
 
 
@@ -239,7 +240,7 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
         tags = validated_data.get('tags')
         if tags is None:
             raise ValidationError({'tags': 'Добавьте тег'})
-        RecipeTag.objects.filter(recipe=instance).delete()
+        instance.tags.clear()
         RecipeIngredient.objects.filter(recipe=instance).delete()
         self.create_recipe_tag(validated_data.pop('tags'), instance)
         self.create_recipe_ingredient(
@@ -300,7 +301,7 @@ class SubscriberDetailSerializer (serializers.ModelSerializer):
         if 'recipes_limit' in request.GET:
             limit = int(request.GET.get('recipes_limit'))
         else:
-            limit = con.PAGE_SIZE
+            limit = PAGE_SIZE
         return RecipeSmallSerializer(
             Recipe.objects.filter(author=obj.author)[:limit],
             many=True,
@@ -329,9 +330,9 @@ class SubscriptionSerializer (serializers.ModelSerializer):
         user = request.user
 
         if user == value:
-            raise serializers.ValidationError(con.SUBSCRIBE_ER_MESSAGE)
+            raise serializers.ValidationError(SUBSCRIBE_ER_MESSAGE)
         if user.following.exists():
-            raise serializers.ValidationError(con.SUBSCRIBE_EXIST_ER_MESSAGE)
+            raise serializers.ValidationError(SUBSCRIBE_EXIST_ER_MESSAGE)
         return value
 
 

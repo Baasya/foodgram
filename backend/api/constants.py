@@ -11,6 +11,7 @@ INGREDIENT_NAME_MAX_LENGTH = 128
 MEASUREMENT_UNIT_MAX_LENGTH = 64
 RECIPE_NAME_MAX_LENGTH = 256
 COOKING_TIME_MIN_VALUE = 1
+COOKING_TIME_MAX_VALUE = 180
 INGREDIENTS_MIN_AMOUNT = 1
 PAGE_SIZE = 6
 PAGE_SIZE_MAX = 60
@@ -23,7 +24,11 @@ SLUG_ERROR_MESSAGE = (
     'Slug может содержать только английские '
     'буквы, цифры или символ "_".'
 )
-COOKING_TIME_ERROR_MESSAGE = (
+COOKING_TIME_MAX_MESSAGE = (
+    'Время приготовления не может быть'
+    'болуу 180 минут.'
+)
+COOKING_TIME_MIN_MESSAGE = (
     'Время приготовления не может быть'
     'менее 1 минуты.'
 )

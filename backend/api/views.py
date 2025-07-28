@@ -17,11 +17,23 @@ from recipes.models import (Favorite, Ingredient, Recipe, RecipeIngredient,
                             ShoppingCart, Tag)
 from users.models import Subscription, User
 
-from . import constants as con
-from . import serializers as s
+from .constants import (SUBSCRIBE_ER_MESSAGE, SUBSCRIBE_EXIST_ER_MESSAGE,
+                        SUBSCRIBE_NOT_EXIST_ER_MESSAGE)
 from .filter import IngredientFilter, RecipeFilter
 from .pagination import CustomPagination
 from .permissions import IsAdminOrAuthorOrReadOnly
+from .serializers import (
+    AvatarSerializer,
+    CustomUserCreateSerializer,
+    CustomUserSerializer,
+    FavoriteRecipeSerializer,
+    IngredientSerializer,
+    RecipeReadSerializer,
+    RecipeWriteSerializer,
+    SubscriberDetailSerializer,
+    SubscriptionSerializer,
+    TagSerializer
+)
 
 
 class CustomUserViewSet(UserViewSet):
@@ -32,8 +44,8 @@ class CustomUserViewSet(UserViewSet):
 
     def get_serializer_class(self):
         if self.request.method == 'POST':
-            return s.CustomUserCreateSerializer
-        return s.CustomUserSerializer
+            return CustomUserCreateSerializer
+        return CustomUserSerializer
 
     @action(
         methods=['post'],
@@ -60,7 +72,7 @@ class CustomUserViewSet(UserViewSet):
     )
     def me(self, request, *args, **kwargs):
         user = request.user
-        serializer = s.CustomUserSerializer(user)
+        serializer = CustomUserSerializer(user)
         return Response(serializer.data)
 
     @action(
@@ -71,7 +83,7 @@ class CustomUserViewSet(UserViewSet):
         url_name='me/avatar',
     )
     def avatar(self, request, *args, **kwargs):
-        serializer = s.AvatarSerializer(
+        serializer = AvatarSerializer(
             instance=request.user,
             data=request.data,
         )
@@ -96,7 +108,7 @@ class CustomUserViewSet(UserViewSet):
         user = request.user
         queryset = user.follower.all()
         pages = self.paginate_queryset(queryset)
-        serializer = s.SubscriberDetailSerializer(
+        serializer = SubscriberDetailSerializer(
             pages,
             many=True,
             context={'request': request}
@@ -115,16 +127,16 @@ class CustomUserViewSet(UserViewSet):
         if self.request.method == 'POST':
             if user == author:
                 return Response(
-                    {'errors': con.SUBSCRIBE_ER_MESSAGE},
+                    {'errors': SUBSCRIBE_ER_MESSAGE},
                     status=status.HTTP_400_BAD_REQUEST,
                 )
             if Subscription.objects.filter(user=user, author=author).exists():
                 return Response(
-                    {'errors': con.SUBSCRIBE_EXIST_ER_MESSAGE},
+                    {'errors': SUBSCRIBE_EXIST_ER_MESSAGE},
                     status=status.HTTP_400_BAD_REQUEST,
                 )
             queryset = Subscription.objects.create(author=author, user=user)
-            serializer = s.SubscriptionSerializer(
+            serializer = SubscriptionSerializer(
                 queryset,
                 context={'request': request}
             )
@@ -135,7 +147,7 @@ class CustomUserViewSet(UserViewSet):
                 user=user, author=author
             ).exists():
                 return Response(
-                    {'errors': con.SUBSCRIBE_NOT_EXIST_ER_MESSAGE},
+                    {'errors': SUBSCRIBE_NOT_EXIST_ER_MESSAGE},
                     status=status.HTTP_400_BAD_REQUEST,
                 )
             subscription = get_object_or_404(
@@ -148,7 +160,7 @@ class CustomUserViewSet(UserViewSet):
 class TagViewSet(viewsets.ReadOnlyModelViewSet):
     """Представление для тэгов."""
     queryset = Tag.objects.all()
-    serializer_class = s.TagSerializer
+    serializer_class = TagSerializer
     permission_classes = (IsAdminOrAuthorOrReadOnly,)
     pagination_class = None
 
@@ -156,7 +168,7 @@ class TagViewSet(viewsets.ReadOnlyModelViewSet):
 class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
     """Представление для ингредиентов."""
     queryset = Ingredient.objects.all()
-    serializer_class = s.IngredientSerializer
+    serializer_class = IngredientSerializer
     permission_classes = (AllowAny,)
     pagination_class = None
     filter_backends = (DjangoFilterBackend,)
@@ -173,8 +185,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
     def get_serializer_class(self):
         if self.action in ('list', 'retrieve', 'get-link'):
-            return s.RecipeReadSerializer
-        return s.RecipeWriteSerializer
+            return RecipeReadSerializer
+        return RecipeWriteSerializer
 
     @action(
         methods=['get'],
@@ -213,7 +225,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
                     status=status.HTTP_400_BAD_REQUEST,
                 )
             ShoppingCart.objects.create(recipe=recipe, user=user)
-            serializer = s.FavoriteRecipeSerializer(
+            serializer = FavoriteRecipeSerializer(
                 recipe,
                 context={'request': request}
             )
@@ -278,7 +290,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
                     status=status.HTTP_400_BAD_REQUEST,
                 )
             Favorite.objects.create(recipe=recipe, user=user)
-            serializer = s.FavoriteRecipeSerializer(
+            serializer = FavoriteRecipeSerializer(
                 recipe,
                 context={'request': request}
             )

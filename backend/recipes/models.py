@@ -1,7 +1,19 @@
-from django.core.validators import MinValueValidator, RegexValidator
+from django.core.validators import (MaxValueValidator, MinValueValidator,
+                                    RegexValidator)
 from django.db import models
 
-from api import constants as con
+from api.constants import (
+    COOKING_TIME_MAX_MESSAGE,
+    COOKING_TIME_MIN_MESSAGE,
+    COOKING_TIME_MAX_VALUE,
+    COOKING_TIME_MIN_VALUE,
+    INGREDIENT_NAME_MAX_LENGTH,
+    MEASUREMENT_UNIT_MAX_LENGTH,
+    RECIPE_NAME_MAX_LENGTH,
+    SLUG_ERROR_MESSAGE,
+    TAG_NAME_MAX_LENGTH,
+    TAG_SLUG_MAX_LENGTH
+)
 from users.models import User
 
 
@@ -10,15 +22,15 @@ class Tag(models.Model):
 
     name = models.CharField(
         verbose_name='Тэг',
-        max_length=con.TAG_NAME_MAX_LENGTH
+        max_length=TAG_NAME_MAX_LENGTH
     )
     slug = models.SlugField(
         verbose_name='Slug тэга',
         unique=True,
-        max_length=con.TAG_SLUG_MAX_LENGTH,
+        max_length=TAG_SLUG_MAX_LENGTH,
         validators=[RegexValidator(
             r'^[-a-zA-Z0-9_]+$',
-            message=con.SLUG_ERROR_MESSAGE
+            message=SLUG_ERROR_MESSAGE
         ),
         ]
     )
@@ -37,13 +49,12 @@ class Ingredient(models.Model):
 
     name = models.CharField(
         verbose_name='Название ингредиента',
-        max_length=con.INGREDIENT_NAME_MAX_LENGTH,
-        blank=False,
+        max_length=INGREDIENT_NAME_MAX_LENGTH,
         unique=True,
     )
     measurement_unit = models.CharField(
         verbose_name='Еденица измерения',
-        max_length=con.MEASUREMENT_UNIT_MAX_LENGTH,
+        max_length=MEASUREMENT_UNIT_MAX_LENGTH,
         blank=False
     )
 
@@ -67,24 +78,24 @@ class Recipe(models.Model):
 
     name = models.CharField(
         verbose_name='Название рецепта',
-        blank=False,
-        max_length=con.RECIPE_NAME_MAX_LENGTH
+        max_length=RECIPE_NAME_MAX_LENGTH
     )
     text = models.TextField(
         verbose_name='Описание',
-        blank=False,
     )
     cooking_time = models.PositiveSmallIntegerField(
         verbose_name='Время готовки в минутах',
         validators=[
             MinValueValidator(
-                con.COOKING_TIME_MIN_VALUE,
-                message=con.COOKING_TIME_ERROR_MESSAGE),
+                COOKING_TIME_MIN_VALUE,
+                message=COOKING_TIME_MIN_MESSAGE),
+            MaxValueValidator(
+                COOKING_TIME_MAX_VALUE,
+                message=COOKING_TIME_MAX_MESSAGE),
         ]
     )
     image = models.ImageField(
         verbose_name='Фото блюда',
-        blank=False,
         upload_to='media/recipies/'
     )
     author = models.ForeignKey(
@@ -97,14 +108,11 @@ class Recipe(models.Model):
         Tag,
         verbose_name='Тэги рецепта',
         related_name='recipes',
-        blank=False,
-        through='RecipeTag'
     )
     ingredients = models.ManyToManyField(
         Ingredient,
         verbose_name='Ингредиенты рецепта',
         related_name='recipes',
-        blank=False,
         through='RecipeIngredient'
     )
 
@@ -115,31 +123,6 @@ class Recipe(models.Model):
 
     def __str__(self):
         return self.name
-
-
-class RecipeTag(models.Model):
-    """Промежуточная модель для связи рецептов и тэгов."""
-
-    recipe = models.ForeignKey(
-        Recipe,
-        verbose_name='Рецепт',
-        related_name='tag_list',
-        on_delete=models.CASCADE
-    )
-    tag = models.ForeignKey(
-        Tag,
-        verbose_name='Тэг',
-        related_name='tag_recipe',
-        on_delete=models.CASCADE
-    )
-
-    class Meta:
-        verbose_name = 'тэг рецепта'
-        verbose_name_plural = 'Тэги рецепта'
-        ordering = ['-id']
-
-    def __str__(self):
-        return f'Тэг рецепта {self.recipe} - {self.tag}.'
 
 
 class RecipeIngredient(models.Model):

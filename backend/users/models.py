@@ -18,8 +18,6 @@ class User(AbstractUser):
         verbose_name='Логин',
         max_length=USERNAME_MAX_LENGHT,
         unique=True,
-        blank=False,
-        null=False,
         validators=[
             RegexValidator(
                 regex=r'^[\w.@+-]+$',
@@ -33,8 +31,6 @@ class User(AbstractUser):
         max_length=EMAIL_MAX_LENGHT,
         unique=True,
         validators=[EmailValidator, ],
-        blank=False,
-        null=False,
     )
     first_name = models.CharField(
         verbose_name='Имя',
@@ -52,7 +48,6 @@ class User(AbstractUser):
         verbose_name='Аватар пользователя',
         upload_to='media/avatars/',
         blank=True,
-        null=True
     )
 
     class Meta:
@@ -66,6 +61,7 @@ class User(AbstractUser):
 
 class Subscription(models.Model):
     """Модель для подписок."""
+
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
