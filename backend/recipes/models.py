@@ -2,7 +2,7 @@ from django.core.validators import MinValueValidator, RegexValidator
 from django.db import models
 
 from api import constants as con
-from users.models import CustomUser
+from users.models import User
 
 
 class Tag(models.Model):
@@ -88,7 +88,7 @@ class Recipe(models.Model):
         upload_to='media/recipies/'
     )
     author = models.ForeignKey(
-        CustomUser,
+        User,
         verbose_name='Автор рецепта',
         related_name='recipes',
         on_delete=models.CASCADE
@@ -191,7 +191,7 @@ class Favorite(models.Model):
         on_delete=models.CASCADE
     )
     user = models.ForeignKey(
-        CustomUser,
+        User,
         verbose_name='Избранное пользователя',
         related_name='favorite',
         on_delete=models.CASCADE
@@ -222,7 +222,7 @@ class ShoppingCart(models.Model):
         on_delete=models.CASCADE
     )
     user = models.ForeignKey(
-        CustomUser,
+        User,
         verbose_name='Пользователь',
         related_name='shopping_cart',
         on_delete=models.CASCADE

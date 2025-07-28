@@ -8,7 +8,7 @@ from api.constants import (EMAIL_MAX_LENGHT, FIRST_NAME_MAX_LENGHT,
 from api.validators import validate_username
 
 
-class CustomUser(AbstractUser):
+class User(AbstractUser):
     """Модель пользователя, используемая в проекте."""
 
     USERNAME_FIELD = 'email'
@@ -67,13 +67,13 @@ class CustomUser(AbstractUser):
 class Subscription(models.Model):
     """Модель для подписок."""
     user = models.ForeignKey(
-        CustomUser,
+        User,
         on_delete=models.CASCADE,
         related_name='follower',
         verbose_name='Подписчик',
     )
     author = models.ForeignKey(
-        CustomUser,
+        User,
         on_delete=models.CASCADE,
         related_name='following',
         verbose_name='Автор',

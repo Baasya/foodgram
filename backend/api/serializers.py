@@ -4,7 +4,7 @@ from rest_framework.exceptions import ValidationError
 
 from recipes.models import (Favorite, Ingredient, Recipe, RecipeIngredient,
                             RecipeTag, ShoppingCart, Tag)
-from users.models import CustomUser, Subscription
+from users.models import Subscription, User
 
 from . import constants as con
 from .fields import Base64ImageField
@@ -15,7 +15,7 @@ class AvatarSerializer(serializers.ModelSerializer):
     avatar = Base64ImageField(allow_null=True)
 
     class Meta:
-        model = CustomUser
+        model = User
         fields = ('avatar',)
 
 
@@ -25,7 +25,7 @@ class CustomUserSerializer(UserSerializer):
     avatar = Base64ImageField(allow_null=True, required=False)
 
     class Meta:
-        model = CustomUser
+        model = User
         fields = (
             'email',
             'id',
@@ -50,7 +50,7 @@ class CustomUserCreateSerializer(UserCreateSerializer):
     password = serializers.CharField(write_only=True)
 
     class Meta:
-        model = CustomUser
+        model = User
         fields = (
             'id',
             'email',

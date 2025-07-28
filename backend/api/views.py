@@ -15,7 +15,7 @@ from rest_framework.reverse import reverse
 
 from recipes.models import (Favorite, Ingredient, Recipe, RecipeIngredient,
                             ShoppingCart, Tag)
-from users.models import CustomUser, Subscription
+from users.models import Subscription, User
 
 from . import constants as con
 from . import serializers as s
@@ -26,7 +26,7 @@ from .permissions import IsAdminOrAuthorOrReadOnly
 
 class CustomUserViewSet(UserViewSet):
     """Представление для пользователей."""
-    queryset = CustomUser.objects.all()
+    queryset = User.objects.all()
     permission_classes = (IsAuthenticatedOrReadOnly,)
     pagination_class = CustomPagination
 
@@ -110,7 +110,7 @@ class CustomUserViewSet(UserViewSet):
     )
     def subscribe(self, request, id):
         user = request.user
-        author = get_object_or_404(CustomUser, id=id)
+        author = get_object_or_404(User, id=id)
 
         if self.request.method == 'POST':
             if user == author:
