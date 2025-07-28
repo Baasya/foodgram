@@ -14,26 +14,18 @@ from rest_framework.permissions import (AllowAny, IsAuthenticated,
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
 
-from recipes.models import (Ingredient, Recipe, RecipeIngredient,
-                            ShoppingCart, Tag)
-from users.models import Subscription, User
+from recipes.models import Ingredient, Recipe, RecipeIngredient, Tag
+from users.models import User
 
 from .filter import IngredientFilter, RecipeFilter
 from .pagination import CustomPagination
 from .permissions import IsAdminOrAuthorOrReadOnly
-from .serializers import (
-    AvatarSerializer,
-    CustomUserCreateSerializer,
-    CustomUserSerializer,
-    FavoriteRecipeSerializer,
-    IngredientSerializer,
-    RecipeReadSerializer,
-    RecipeWriteSerializer,
-    ShoppingCartCreateSerializer,
-    SubscriberDetailSerializer,
-    SubscriptionSerializer,
-    TagSerializer
-)
+from .serializers import (AvatarSerializer, CustomUserCreateSerializer,
+                          CustomUserSerializer, FavoriteRecipeSerializer,
+                          IngredientSerializer, RecipeReadSerializer,
+                          RecipeWriteSerializer, ShoppingCartCreateSerializer,
+                          SubscriberDetailSerializer, SubscriptionSerializer,
+                          TagSerializer)
 
 
 class CustomUserViewSet(UserViewSet):

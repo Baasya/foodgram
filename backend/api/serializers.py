@@ -378,4 +378,3 @@ class FavoriteRecipeSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         return ShoppingCart.objects.create(**validated_data)
-    

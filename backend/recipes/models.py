@@ -2,20 +2,13 @@ from django.core.validators import (MaxValueValidator, MinValueValidator,
                                     RegexValidator)
 from django.db import models
 
-from api.constants import (
-    COOKING_TIME_MAX_MESSAGE,
-    COOKING_TIME_MIN_MESSAGE,
-    COOKING_TIME_MAX_VALUE,
-    COOKING_TIME_MIN_VALUE,
-    INGREDIENTS_AMOUNT_ERROR_MESSAGE,
-    INGREDIENT_NAME_MAX_LENGTH,
-    INGREDIENTS_MIN_AMOUNT,
-    MEASUREMENT_UNIT_MAX_LENGTH,
-    RECIPE_NAME_MAX_LENGTH,
-    SLUG_ERROR_MESSAGE,
-    TAG_NAME_MAX_LENGTH,
-    TAG_SLUG_MAX_LENGTH
-)
+from api.constants import (COOKING_TIME_MAX_MESSAGE, COOKING_TIME_MAX_VALUE,
+                           COOKING_TIME_MIN_MESSAGE, COOKING_TIME_MIN_VALUE,
+                           INGREDIENT_NAME_MAX_LENGTH,
+                           INGREDIENTS_AMOUNT_ERROR_MESSAGE,
+                           INGREDIENTS_MIN_AMOUNT, MEASUREMENT_UNIT_MAX_LENGTH,
+                           RECIPE_NAME_MAX_LENGTH, SLUG_ERROR_MESSAGE,
+                           TAG_NAME_MAX_LENGTH, TAG_SLUG_MAX_LENGTH)
 from users.models import User
 
 
