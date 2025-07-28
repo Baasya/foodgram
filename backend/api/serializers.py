@@ -281,7 +281,8 @@ class SubscriberDetailSerializer (serializers.ModelSerializer):
     last_name = serializers.ReadOnlyField(source='author.last_name')
     is_subscribed = serializers.SerializerMethodField()
     recipes = serializers.SerializerMethodField()
-    recipes_count = serializers.SerializerMethodField()
+    recipes_count = serializers.IntegerField(
+        source='recipe_count', read_only=True)
     avatar = Base64ImageField(source='author.avatar')
 
     class Meta:
@@ -315,9 +316,6 @@ class SubscriberDetailSerializer (serializers.ModelSerializer):
             context={'request': request}
         ).data
 
-    def get_recipes_count(self, obj):
-        return Recipe.objects.filter(author=obj.author).count()
-
 
 class SubscriptionSerializer (serializers.ModelSerializer):
     """Сериализатор для подписки."""
@@ -335,7 +333,6 @@ class SubscriptionSerializer (serializers.ModelSerializer):
     def validate(self, value):
         request = self.context.get('request')
         user = request.user
-
         if user == value:
             raise serializers.ValidationError(SUBSCRIBE_ER_MESSAGE)
         if user.following.exists():
@@ -343,16 +340,42 @@ class SubscriptionSerializer (serializers.ModelSerializer):
         return value
 
 
+class ShoppingCartCreateSerializer(serializers.ModelSerializer):
+    """Сериализатор для создания корзины покупок."""
+
+    class Meta:
+        model = ShoppingCart
+        fields = ('id', 'user', 'recipe')
+        read_only_fields = ('id',)
+
+    def validate(self, data):
+        recipe = data.get('recipe')
+        if recipe.shopping_cart.exists():
+            raise ValidationError(
+                f'{recipe.name} уже добавлен в список покупок.'
+            )
+        return data
+
+    def create(self, validated_data):
+        return ShoppingCart.objects.create(**validated_data)
+
+
 class FavoriteRecipeSerializer(serializers.ModelSerializer):
     """Сериализатор для избранных рецептов."""
 
-    image = Base64ImageField()
-
     class Meta:
         model = Recipe
-        fields = (
-            'id',
-            'name',
-            'image',
-            'cooking_time'
-        )
+        fields = ('id', 'user', 'recipe')
+        read_only_fields = ('id',)
+
+    def validate(self, data):
+        recipe = data.get('recipe')
+        if recipe.favorite.exists():
+            raise ValidationError(
+                f'{recipe.name} уже добавлен в избранное.'
+            )
+        return data
+
+    def create(self, validated_data):
+        return ShoppingCart.objects.create(**validated_data)
+    

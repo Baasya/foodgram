@@ -7,7 +7,9 @@ from api.constants import (
     COOKING_TIME_MIN_MESSAGE,
     COOKING_TIME_MAX_VALUE,
     COOKING_TIME_MIN_VALUE,
+    INGREDIENTS_AMOUNT_ERROR_MESSAGE,
     INGREDIENT_NAME_MAX_LENGTH,
+    INGREDIENTS_MIN_AMOUNT,
     MEASUREMENT_UNIT_MAX_LENGTH,
     RECIPE_NAME_MAX_LENGTH,
     SLUG_ERROR_MESSAGE,
@@ -144,8 +146,8 @@ class RecipeIngredient(models.Model):
         verbose_name='Количество',
         validators=[
             MinValueValidator(
-                con.INGREDIENTS_MIN_AMOUNT,
-                message=con.INGREDIENTS_AMOUNT_ERROR_MESSAGE),
+                INGREDIENTS_MIN_AMOUNT,
+                message=INGREDIENTS_AMOUNT_ERROR_MESSAGE),
         ]
     )
 
