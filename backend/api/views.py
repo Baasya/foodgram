@@ -1,5 +1,6 @@
 from io import BytesIO
 
+from django.contrib.auth import get_user_model
 from django.db.models import Count, Sum
 from django.http import FileResponse
 from django.shortcuts import get_object_or_404, redirect
@@ -15,7 +16,6 @@ from rest_framework.response import Response
 from rest_framework.reverse import reverse
 
 from recipes.models import Ingredient, Recipe, RecipeIngredient, Tag
-from users.models import User
 
 from .filter import IngredientFilter, RecipeFilter
 from .pagination import CustomPagination
@@ -26,6 +26,9 @@ from .serializers import (AvatarSerializer, CustomUserCreateSerializer,
                           RecipeWriteSerializer, ShoppingCartCreateSerializer,
                           SubscriberDetailSerializer, SubscriptionSerializer,
                           TagSerializer)
+
+
+User = get_user_model()
 
 
 class CustomUserViewSet(UserViewSet):

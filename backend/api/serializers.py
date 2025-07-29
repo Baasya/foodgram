@@ -1,14 +1,18 @@
+from django.contrib.auth import get_user_model
 from djoser.serializers import UserCreateSerializer, UserSerializer
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
 from recipes.models import (Favorite, Ingredient, Recipe, RecipeIngredient,
                             ShoppingCart, Tag)
-from users.models import Subscription, User
+from users.models import Subscription
 
 from .constants import (PAGE_SIZE, SUBSCRIBE_ER_MESSAGE,
                         SUBSCRIBE_EXIST_ER_MESSAGE)
 from .fields import Base64ImageField
+
+
+User = get_user_model()
 
 
 class AvatarSerializer(serializers.ModelSerializer):

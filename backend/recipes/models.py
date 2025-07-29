@@ -1,3 +1,4 @@
+from django.contrib.auth import get_user_model
 from django.core.validators import (MaxValueValidator, MinValueValidator,
                                     RegexValidator)
 from django.db import models
@@ -9,7 +10,9 @@ from api.constants import (COOKING_TIME_MAX_MESSAGE, COOKING_TIME_MAX_VALUE,
                            INGREDIENTS_MIN_AMOUNT, MEASUREMENT_UNIT_MAX_LENGTH,
                            RECIPE_NAME_MAX_LENGTH, SLUG_ERROR_MESSAGE,
                            TAG_NAME_MAX_LENGTH, TAG_SLUG_MAX_LENGTH)
-from users.models import User
+
+
+User = get_user_model()
 
 
 class Tag(models.Model):
