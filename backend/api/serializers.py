@@ -1,8 +1,7 @@
 from django.contrib.auth import get_user_model
 from djoser.serializers import UserCreateSerializer, UserSerializer
-from rest_framework import serializers, status
+from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
-from rest_framework.response import Response
 
 from recipes.models import (Favorite, Ingredient, Recipe, RecipeIngredient,
                             ShoppingCart, Tag)
@@ -336,20 +335,14 @@ class SubscriptionSerializer (serializers.ModelSerializer):
             context=self.context
         ).data
 
-    def validate(self, value):
-        request = self.context.get('request')
-        user = request.user
-        if user == value:
-            return Response(
-                {"detail": SUBSCRIBE_ER_MESSAGE},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
+    def validate(self, data):
+        user = data.get('user')
+        author = data.get('author')
+        if user == author:
+            raise ValidationError(SUBSCRIBE_ER_MESSAGE)
         if user.following.exists():
-            return Response(
-                {"detail": SUBSCRIBE_EXIST_ER_MESSAGE},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-        return value
+            raise ValidationError(SUBSCRIBE_EXIST_ER_MESSAGE)
+        return data
 
 
 class ShoppingCartCreateSerializer(serializers.ModelSerializer):

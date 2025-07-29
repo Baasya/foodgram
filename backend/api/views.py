@@ -23,7 +23,8 @@ from .permissions import IsAdminOrAuthorOrReadOnly
 from .serializers import (AvatarSerializer, CustomUserCreateSerializer,
                           CustomUserSerializer, FavoriteRecipeSerializer,
                           IngredientSerializer, RecipeReadSerializer,
-                          RecipeWriteSerializer, ShoppingCartCreateSerializer,
+                          RecipeSmallSerializer, RecipeWriteSerializer,
+                          ShoppingCartCreateSerializer,
                           SubscriberDetailSerializer, SubscriptionSerializer,
                           TagSerializer)
 
@@ -118,9 +119,9 @@ class CustomUserViewSet(UserViewSet):
     )
     def subscribe(self, request, id):
         user = request.user
-        author = get_object_or_404(User, id=id)
-        data = {'user': user.id, 'author': author.id}
         if self.request.method == 'POST':
+            author = get_object_or_404(User, id=id)
+            data = {'user': user.id, 'author': author.id}
             serializer = SubscriptionSerializer(
                 data=data,
                 context={'request': request}
@@ -210,14 +211,17 @@ class RecipeViewSet(viewsets.ModelViewSet):
     def shopping_cart(self, request, pk):
         user = request.user
         recipe = get_object_or_404(Recipe, pk=pk)
-        data = {'user': user.id, 'recipe': recipe.id}
         if request.method == 'POST':
+            data = {'user': user.id, 'recipe': recipe.id}
             serializer = ShoppingCartCreateSerializer(
                 data=data,
                 context={'request': request}
             )
             serializer.is_valid(raise_exception=True)
             serializer.save()
+            serializer = RecipeSmallSerializer(
+                recipe, context={'request': request}
+            )
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         elif request.method == 'DELETE':
             deleted_count, _ = user.shopping_cart.filter(
@@ -278,14 +282,17 @@ class RecipeViewSet(viewsets.ModelViewSet):
     def favorite(self, request, pk):
         user = request.user
         recipe = get_object_or_404(Recipe, pk=pk)
-        data = {'user': user.id, 'recipe': recipe.id}
         if request.method == 'POST':
+            data = {'user': user.id, 'recipe': recipe.id}
             serializer = FavoriteRecipeSerializer(
                 data=data,
                 context={'request': request}
             )
             serializer.is_valid(raise_exception=True)
             serializer.save()
+            serializer = RecipeSmallSerializer(
+                recipe, context={'request': request}
+            )
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         elif request.method == 'DELETE':
             deleted_count, _ = user.favorite.filter(
