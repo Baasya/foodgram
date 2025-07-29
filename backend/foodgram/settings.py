@@ -15,7 +15,10 @@ DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
 
-CSRF_TRUSTED_ORIGINS = ['https://foodgram.myftp.biz/recipes']
+CSRF_TRUSTED_ORIGINS = [
+    'https://foodgram.myftp.biz/',
+    'https://foodgram.myftp.biz',
+]
 
 AUTH_USER_MODEL = 'users.User'
 
