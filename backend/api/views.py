@@ -102,7 +102,7 @@ class CustomUserViewSet(UserViewSet):
     def subscriptions(self, request):
         user = request.user
         queryset = user.follower.annotate(
-            recipe_count=Count('follower__recipes'))
+            recipe_count=Count('author__recipes'))
         pages = self.paginate_queryset(queryset)
         serializer = SubscriberDetailSerializer(
             pages,
@@ -166,7 +166,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     """Представление для рецептов."""
 
     queryset = Recipe.objects.select_related('author').prefetch_related(
-        'tags', 'recipeingredient__ingredient'
+        'tags', 'ingredients'
     )
     permission_classes = (IsAdminOrAuthorOrReadOnly,)
     pagination_class = CustomPagination

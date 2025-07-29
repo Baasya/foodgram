@@ -311,8 +311,8 @@ class SubscriberDetailSerializer (serializers.ModelSerializer):
 
     def get_recipes(self, obj):
         request = self.context.get('request')
-        if 'recipes_limit' in request.GET:
-            limit = PAGE_SIZE
+        limit = request.GET.get('recipes_limit')
+        limit = int(limit) if limit is not None else PAGE_SIZE
         return RecipeSmallSerializer(
             Recipe.objects.filter(author=obj.author)[:limit],
             many=True,
@@ -380,4 +380,4 @@ class FavoriteRecipeSerializer(serializers.ModelSerializer):
         return data
 
     def create(self, validated_data):
-        return ShoppingCart.objects.create(**validated_data)
+        return Favorite.objects.create(**validated_data)
