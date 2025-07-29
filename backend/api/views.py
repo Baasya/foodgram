@@ -127,6 +127,13 @@ class CustomUserViewSet(UserViewSet):
             )
             serializer.is_valid(raise_exception=True)
             serializer.save()
+            queryset = (
+                user.follower
+                .annotate(recipes_count=Count('author__recipes'))
+            )
+            serializer = SubscriberDetailSerializer(
+                queryset, context={'request': request}
+            )
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         elif self.request.method == 'DELETE':

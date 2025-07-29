@@ -1,7 +1,8 @@
 from django.contrib.auth import get_user_model
 from djoser.serializers import UserCreateSerializer, UserSerializer
-from rest_framework import serializers
+from rest_framework import serializers, status
 from rest_framework.exceptions import ValidationError
+from rest_framework.response import Response
 
 from recipes.models import (Favorite, Ingredient, Recipe, RecipeIngredient,
                             ShoppingCart, Tag)
@@ -284,8 +285,7 @@ class SubscriberDetailSerializer (serializers.ModelSerializer):
     last_name = serializers.ReadOnlyField(source='author.last_name')
     is_subscribed = serializers.SerializerMethodField()
     recipes = serializers.SerializerMethodField()
-    recipes_count = serializers.IntegerField(
-        source='recipe_count', read_only=True)
+    recipes_count = serializers.SerializerMethodField()
     avatar = Base64ImageField(source='author.avatar')
 
     class Meta:
@@ -301,6 +301,9 @@ class SubscriberDetailSerializer (serializers.ModelSerializer):
             'recipes_count',
             'avatar',
         )
+
+    def get_recipes_count(self, obj):
+        return getattr(obj, 'recipe_count', 0)
 
     def get_is_subscribed(self, obj):
         request = self.context.get('request')
@@ -337,9 +340,15 @@ class SubscriptionSerializer (serializers.ModelSerializer):
         request = self.context.get('request')
         user = request.user
         if user == value:
-            raise serializers.ValidationError(SUBSCRIBE_ER_MESSAGE)
+            return Response(
+                {"detail": SUBSCRIBE_ER_MESSAGE},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
         if user.following.exists():
-            raise serializers.ValidationError(SUBSCRIBE_EXIST_ER_MESSAGE)
+            return Response(
+                {"detail": SUBSCRIBE_EXIST_ER_MESSAGE},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
         return value
 
 
