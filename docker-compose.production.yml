@@ -2,7 +2,6 @@ volumes:
   pg_data:
   static:
   media:
-  redoc:
 services:
   db:
     image: postgres:13
@@ -17,7 +16,6 @@ services:
     volumes:
       - static:/backend_static
       - media:/app/media/
-      - redoc:/app/api/docs/
   frontend:
     env_file: .env
     image: menastasiia/foodgram_frontend
@@ -36,4 +34,4 @@ services:
     volumes:
       - static:/staticfiles/
       - media:/app/media/
-      - redoc:/usr/share/nginx/html/api/docs/
+
