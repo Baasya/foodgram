@@ -11,7 +11,6 @@ from api.constants import (COOKING_TIME_MAX_MESSAGE, COOKING_TIME_MAX_VALUE,
                            RECIPE_NAME_MAX_LENGTH, SLUG_ERROR_MESSAGE,
                            TAG_NAME_MAX_LENGTH, TAG_SLUG_MAX_LENGTH)
 
-
 User = get_user_model()
 
 

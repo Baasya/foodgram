@@ -11,7 +11,6 @@ from .constants import (PAGE_SIZE, SUBSCRIBE_ER_MESSAGE,
                         SUBSCRIBE_EXIST_ER_MESSAGE)
 from .fields import Base64ImageField
 
-
 User = get_user_model()
 
 
