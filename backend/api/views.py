@@ -119,8 +119,8 @@ class CustomUserViewSet(UserViewSet):
     )
     def subscribe(self, request, id):
         user = request.user
-        author = get_object_or_404(User, id=id)
         if self.request.method == 'POST':
+            author = get_object_or_404(User, id=id)
             data = {'user': user.id, 'author': author.id}
             serializer = SubscriptionSerializer(
                 data=data,
@@ -139,7 +139,7 @@ class CustomUserViewSet(UserViewSet):
 
         elif self.request.method == 'DELETE':
             deleted_count, _ = user.following.filter(
-                user=user, author_id=author
+                user=user, author_id=id
             ).delete()
             if deleted_count == 0:
                 return Response(
