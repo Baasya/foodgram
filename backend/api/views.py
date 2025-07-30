@@ -16,6 +16,7 @@ from rest_framework.response import Response
 from rest_framework.reverse import reverse
 
 from recipes.models import Ingredient, Recipe, RecipeIngredient, Tag
+from users.models import Subscription
 
 from .filter import IngredientFilter, RecipeFilter
 from .pagination import CustomPagination
@@ -143,10 +144,10 @@ class CustomUserViewSet(UserViewSet):
                     {'detail': "Пользователь с таким id не найден"},
                     status=status.HTTP_404_NOT_FOUND,
                 )
-            deleted_count, _ = user.following.filter(
-                user=user, author_id=id
-            ).delete()
-            if deleted_count == 0:
+            subscription = get_object_or_404(
+                Subscription, user=user, author_id=id
+            )
+            if subscription.delete()[0] == 0:
                 return Response(
                     {'detail': 'Вы не подписаны на этого пользователя.'},
                     status=status.HTTP_400_BAD_REQUEST
