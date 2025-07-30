@@ -139,7 +139,7 @@ class CustomUserViewSet(UserViewSet):
 
         elif self.request.method == 'DELETE':
             deleted_count, _ = user.following.filter(
-                user=user, author=author
+                user=user, author_id=author
             ).delete()
             if deleted_count == 0:
                 return Response(
