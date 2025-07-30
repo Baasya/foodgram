@@ -131,7 +131,7 @@ class CustomUserViewSet(UserViewSet):
             queryset = (
                 user.follower
                 .annotate(recipes_count=Count('author__recipes'))
-            )
+            ).first()
             serializer = SubscriberDetailSerializer(
                 queryset, context={'request': request}
             )
