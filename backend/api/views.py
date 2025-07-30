@@ -138,14 +138,18 @@ class CustomUserViewSet(UserViewSet):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         elif self.request.method == 'DELETE':
-            user = get_object_or_404(User, id=request.user.id)
+            if not User.objects.filter(id=id).exists():
+                return Response(
+                    {'detail': "Пользователь с таким id не найден"},
+                    status=status.HTTP_404_NOT_FOUND,
+                )
             deleted_count, _ = user.following.filter(
                 user=user, author_id=id
             ).delete()
             if deleted_count == 0:
                 return Response(
-                    {"detail": 'Вы не подписаны на этого пользователя.'},
-                    status=status.HTTP_404_NOT_FOUND,
+                    {'detail': 'Вы не подписаны на этого пользователя.'},
+                    status=status.HTTP_400_BAD_REQUEST
                 )
             return Response(status=status.HTTP_204_NO_CONTENT)
 
