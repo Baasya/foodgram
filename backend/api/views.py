@@ -145,7 +145,7 @@ class CustomUserViewSet(UserViewSet):
             if deleted_count == 0:
                 return Response(
                     {"detail": 'Вы не подписаны на этого пользователя.'},
-                    status=status.HTTP_400_BAD_REQUEST,
+                    status=status.HTTP_404_NOT_FOUND,
                 )
             return Response(status=status.HTTP_204_NO_CONTENT)
 
