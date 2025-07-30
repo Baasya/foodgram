@@ -143,7 +143,7 @@ class CustomUserViewSet(UserViewSet):
             ).delete()
             if deleted_count == 0:
                 return Response(
-                    {"detail": f'Вы не подписаны на {author.name}.'},
+                    {"detail": f'Вы не подписаны на {author}.'},
                     status=status.HTTP_400_BAD_REQUEST,
                 )
             return Response(status=status.HTTP_204_NO_CONTENT)
@@ -229,7 +229,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
             ).delete()
             if deleted_count == 0:
                 return Response(
-                    {"detail": f'{recipe.name} не в корзине покупок.'},
+                    {"detail": f'{recipe} не в корзине покупок.'},
                     status=status.HTTP_400_BAD_REQUEST,
                 )
             return Response(status=status.HTTP_204_NO_CONTENT)
@@ -300,7 +300,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
             ).delete()
             if deleted_count == 0:
                 return Response(
-                    {"detail": f'{recipe.name} не в избранном.'},
+                    {"detail": f'{recipe} не в избранном.'},
                     status=status.HTTP_400_BAD_REQUEST,
                 )
             return Response(status=status.HTTP_204_NO_CONTENT)

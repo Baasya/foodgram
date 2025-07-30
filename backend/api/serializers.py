@@ -369,7 +369,7 @@ class FavoriteRecipeSerializer(serializers.ModelSerializer):
     """Сериализатор для избранных рецептов."""
 
     class Meta:
-        model = Recipe
+        model = Favorite
         fields = ('id', 'user', 'recipe')
         read_only_fields = ('id',)
 
