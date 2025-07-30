@@ -143,7 +143,7 @@ class CustomUserViewSet(UserViewSet):
             ).delete()
             if deleted_count == 0:
                 return Response(
-                    {"detail": f'Вы не подписаны на {author}.'},
+                    {"detail": 'Вы не подписаны на этого пользователя.'},
                     status=status.HTTP_400_BAD_REQUEST,
                 )
             return Response(status=status.HTTP_204_NO_CONTENT)
