@@ -138,6 +138,7 @@ class CustomUserViewSet(UserViewSet):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         elif self.request.method == 'DELETE':
+            user = get_object_or_404(User, id=request.user.id)
             deleted_count, _ = user.following.filter(
                 user=user, author_id=id
             ).delete()
