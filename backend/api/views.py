@@ -120,8 +120,8 @@ class CustomUserViewSet(UserViewSet):
     )
     def subscribe(self, request, id):
         user = request.user
+        author = get_object_or_404(User, id=id)
         if self.request.method == 'POST':
-            author = get_object_or_404(User, id=id)
             data = {'user': user.id, 'author': author.id}
             serializer = SubscriptionSerializer(
                 data=data,
@@ -145,7 +145,7 @@ class CustomUserViewSet(UserViewSet):
                     status=status.HTTP_404_NOT_FOUND,
                 )
             subscription = get_object_or_404(
-                Subscription, user=user, author_id=id
+                Subscription, user=user, author=author
             )
             if subscription.delete()[0] == 0:
                 return Response(
