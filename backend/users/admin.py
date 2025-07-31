@@ -34,7 +34,7 @@ class SubscriptionAdmin(admin.ModelAdmin):
         'user',
         'author',
     )
-    list_display_links = ('id', 'username')
+    list_display_links = ('id', 'user')
     list_filter = ('user', )
     search_fields = ('user', )
     ordering = ('user', )
