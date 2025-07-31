@@ -1,7 +1,12 @@
-from djaa_list_filter.admin import AjaxAutocompleteListFilterModelAdmin
 from django.contrib import admin
+from admin_auto_filters.filters import AutocompleteFilter
 
 from recipes.models import Ingredient, Recipe, Tag
+
+
+class TagFilter(AutocompleteFilter):
+    title = 'Тэг'
+    field_name = 'tags'
 
 
 class RecipeTagInline(admin.TabularInline):
@@ -9,9 +14,7 @@ class RecipeTagInline(admin.TabularInline):
     extra = 1
 
 
-class RecipeIngredientInline(
-    AjaxAutocompleteListFilterModelAdmin, admin.TabularInline
-):
+class RecipeIngredientInline(admin.TabularInline):
     model = Recipe.ingredients.through
     extra = 1
 
@@ -36,10 +39,9 @@ class RecipeAdmin(admin.ModelAdmin):
     list_display = ('id', 'name', 'author', 'count_favorite')
     list_display_links = ('id', 'name')
     inlines = [RecipeTagInline, RecipeIngredientInline]
-    list_filter = ('tags', )
+    list_filter = (TagFilter, )
     search_fields = ('name',)
     empty_value_display = '-пусто-'
-    autocomplete_list_filter = ('author', 'tags')
 
     def get_queryset(self, request):
         queryset = super().get_queryset(request)

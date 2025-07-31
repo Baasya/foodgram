@@ -31,12 +31,12 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'rest_framework.authtoken',
+    'admin_auto_filters',
     'djoser',
     'django_filters',
     'api.apps.ApiConfig',
     'users.apps.UsersConfig',
     'recipes.apps.RecipesConfig',
-    'djaa_list_filter',
 ]
 
 MIDDLEWARE = [
