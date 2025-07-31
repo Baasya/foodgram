@@ -1,5 +1,5 @@
-from django.contrib import admin
 from admin_auto_filters.filters import AutocompleteFilter
+from django.contrib import admin
 
 from recipes.models import Ingredient, Recipe, Tag
 

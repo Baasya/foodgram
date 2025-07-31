@@ -57,6 +57,9 @@ sudo docker compose -f docker-compose.production.yml exec backend python manage.
 + gunicorn
 + docker
 + GitHub Actions
++ React
++ Yaml
++ Postman
 
 ##### Автор бэкенда и CI/CD реализации - Басюк Анастасия
 ###### 2025г
