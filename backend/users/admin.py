@@ -19,7 +19,7 @@ class CustomUserAdmin(UserAdmin):
         'last_name',
     )
     list_display_links = ('id', 'username')
-    list_filter = ('email', 'is_staff', 'is_active')
+    list_filter = ('is_staff', 'is_active')
     search_fields = ('email', 'first_name', 'last_name', 'username')
     ordering = ('username', )
     empty_value_display = '-пусто-'
@@ -36,11 +36,10 @@ class SubscriptionAdmin(admin.ModelAdmin):
     )
     list_display_links = ('id', 'user')
     list_filter = ('user', )
-    search_fields = ('user', )
+    search_fields = ('user__username', )
     ordering = ('user', )
     empty_value_display = '-пусто-'
 
     def get_queryset(self, request):
         queryset = super().get_queryset(request)
-        queryset_new = queryset.select_related('author', 'user')
-        return queryset_new
+        return queryset.select_related('author', 'user')
